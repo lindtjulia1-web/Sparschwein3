@@ -194,10 +194,10 @@ function buildInnerGame() {
         
         /* Визуальное накопление золотого "пуза" */
         .gold-fill { 
-            position: absolute; width: 10vmin; height: 10vmin; 
-            background: radial-gradient(circle, #f9e076 20%, #ffb347 50%, transparent 75%);
+            position: absolute; width: 12vmin; height: 12vmin; 
+            background: radial-gradient(circle, rgba(249,224,118,0.9) 10%, rgba(255,179,71,0.6) 40%, transparent 80%);
             border-radius: 50%; z-index: 5; opacity: 0; 
-            filter: blur(15px); transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: blur(12px); transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
         }
 
@@ -302,11 +302,9 @@ function buildInnerGame() {
 
         function updateGoldCore() {
             const core = document.getElementById('gold-core');
-            // Рассчитываем прогресс (до 1000 золота для макс. заполнения)
-            const progress = Math.min(score / 1000, 1); 
-            core.style.opacity = 0.3 + (progress * 0.7);
-            // Сияние растет от 1х до 3х размера
-            const scale = 1 + (progress * 2.5);
+            const progress = Math.min(score / 1200, 1); 
+            core.style.opacity = 0.4 + (progress * 0.6);
+            const scale = 1 + (progress * 2.8);
             core.style.transform = "scale(" + scale + ")";
         }
 
