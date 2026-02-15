@@ -2,52 +2,50 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Pirate Piggy Bank - Stable Edition</title>
+    <title>Pirate Piggy Bank - Ultra Stable</title>
     <style>
         :root { --accent: #f9e076; --panel: #2a2a32; --border: #3d3d45; }
-        body { font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 350px; background: var(--panel); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; box-sizing: border-box; }
-        h2 { color: var(--accent); font-size: 11px; text-transform: uppercase; margin-top: 20px; border-left: 3px solid var(--accent); padding-left: 10px; }
-        .card { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #444; }
-        label { display: block; font-size: 10px; color: #aaa; margin-top: 8px; }
-        input, select, textarea { width: 100%; background: #111; border: 1px solid #555; color: #fff; padding: 8px; border-radius: 6px; margin-top: 4px; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #111; color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 350px; background: var(--panel); border-right: 1px solid var(--border); padding: 15px; overflow-y: auto; }
+        h2 { color: var(--accent); font-size: 11px; text-transform: uppercase; margin-top: 15px; border-left: 3px solid var(--accent); padding-left: 10px; }
+        .card { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #444; }
+        label { display: block; font-size: 10px; color: #aaa; margin-top: 5px; }
+        input, select, textarea { width: 100%; background: #000; border: 1px solid #555; color: #fff; padding: 6px; border-radius: 4px; margin-top: 4px; box-sizing: border-box; font-size: 13px; }
         .btn { border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.2s; }
-        .btn-update { background: #ffb347; color: #000; }
-        .btn-code { background: #77dd77; color: #000; }
-        .preview { flex: 1; background: #0c0c0e; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        #ifr-container { background: #000; border-radius: 30px; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.8); }
+        .btn-update { background: #f9e076; color: #000; }
+        .btn-code { background: #4caf50; color: #fff; }
+        .preview { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
+        #ifr-container { background: #000; border: 4px solid var(--accent); border-radius: 20px; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h2>Экран Виджета</h2>
+    <h2>Экран</h2>
     <div style="display:flex; gap:5px;">
         <input type="number" id="w" value="800">
         <input type="number" id="h" value="450">
     </div>
 
-    <h2>Тексты и Локализация</h2>
-    <label>Заголовок</label>
-    <input type="text" id="t" value="Золото Пирата">
+    <h2>Тексты</h2>
+    <input type="text" id="t" value="Пиратское Золото">
     <label>Кнопка старта</label>
     <input type="text" id="b" value="В БОЙ">
-    <label>Язык интерфейса</label>
-    <select id="lang"><option value="ru">Русский</option><option value="en">English</option><option value="de">Deutsch</option></select>
+    <label>Язык</label>
+    <select id="lang"><option value="ru">Русский</option><option value="en">English</option></select>
 
-    <h2>Вопросы (Уровень 1)</h2>
+    <h2>Вопросы</h2>
     <div class="card">
-        <label>Вопросы (по одному в строке)</label>
-        <textarea id="qs" rows="3">Где золото?&#10;Сколько 2+2?</textarea>
-        <label>Правильные ответы</label>
+        <textarea id="qs" rows="3">Где золото?&#10;2 + 2 = ?</textarea>
+        <label>Правильные</label>
         <textarea id="ans" rows="2">На острове&#10;4</textarea>
-        <label>Неправильные (через запятую)</label>
-        <textarea id="wr" rows="2">В банке, В лесу&#10;5, 3</textarea>
+        <label>Неправильные</label>
+        <textarea id="wr" rows="2">В банке,В лесу&#10;5,3</textarea>
     </div>
 
-    <button class="btn btn-update" onclick="update()">ОБНОВИТЬ ПРЕВЬЮ</button>
-    <button class="btn btn-code" onclick="showCode()">ПОЛУЧИТЬ КОД</button>
+    <button class="btn btn-update" onclick="update()">ОБНОВИТЬ</button>
+    <button class="btn btn-code" onclick="getCode()">КОД ДЛЯ GENIALLY</button>
 </div>
 
 <div class="preview">
@@ -59,69 +57,92 @@
 <script>
 const GITHUB = "https://raw.githubusercontent.com/lindtjulia1-web/Sparschwein1/main/";
 
-function getHTML() {
-    // Безопасно собираем данные, чтобы кавычки в текстах ничего не ломали
-    const data = {
+function buildGame() {
+    // Собираем массив вопросов
+    const qRaw = document.getElementById('qs').value.split('\n');
+    const aRaw = document.getElementById('ans').value.split('\n');
+    const wRaw = document.getElementById('wr').value.split('\n');
+    
+    const questions = qRaw.map((q, i) => {
+        return {
+            question: q.trim(),
+            correct: (aRaw[i] || "").trim(),
+            wrong: (wRaw[i] || "").split(',').map(s => s.trim())
+        };
+    });
+
+    const config = {
         title: document.getElementById('t').value,
         btn: document.getElementById('b').value,
-        lang: document.getElementById('lang').value,
         pigs: [GITHUB+"1.png", GITHUB+"2.png", GITHUB+"3.png", GITHUB+"4.png", GITHUB+"5.png", GITHUB+"6.png"],
-        coin: GITHUB+"7.png",
-        questions: document.getElementById('qs').value.split('\n').map((q, i) => ({
-            q: q.trim(),
-            a: [ (document.getElementById('ans').value.split('\n')[i] || "???").trim(), 
-                 ...document.getElementById('wr').value.split('\n')[i].split(',').map(x => x.trim()) ]
-        }))
+        questions: questions
     };
 
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    // Генерируем чистый HTML без опасных вставок ${} внутри строк
+    return `
+<!DOCTYPE html>
+<html>
+<head>
     <style>
-        body { margin:0; height:100vh; background:#000; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; border:6px solid #f9e076; border-radius:30px; box-sizing:border-box; overflow:hidden; }
-        .score { font-size:40px; color:#f9e076; font-weight:bold; margin-bottom:10px; }
-        .pig-wrap { position:relative; height:40%; margin:20px; display:flex; align-items:center; justify-content:center; }
-        .pig { height:100%; z-index:2; filter: drop-shadow(0 0 10px gold); }
-        .glow { position:absolute; width:150px; height:150px; background:radial-gradient(circle, #f9e076 0%, transparent 70%); filter:blur(20px); opacity:0; transition:1s; z-index:1; }
-        .btn-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:80%; }
-        button { padding:15px; border:none; background:#f9e076; color:#000; font-weight:bold; border-radius:10px; cursor:pointer; font-size:18px; }
-        .overlay { position:fixed; inset:0; background:#000; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-    </style></head><body>
-        <div id="start" class="overlay"><h1>\${data.title}</h1><button onclick="document.getElementById('start').remove()">\${data.btn}</button></div>
-        <div class="score" id="sc">0</div>
-        <div class="pig-wrap">
-            <div id="gl" class="glow"></div>
-            <img id="p" src="\${data.pigs[0]}" class="pig">
-        </div>
-        <div id="q" style="font-size:22px; margin-bottom:20px; padding:0 20px;"></div>
-        <div id="btns" class="btn-grid"></div>
+        body { margin: 0; height: 100vh; background: #000; color: #f9e076; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .pig-container { position: relative; height: 50%; margin: 20px; }
+        .pig { height: 100%; position: relative; z-index: 2; }
+        .gold-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; background: radial-gradient(circle, gold, transparent 70%); filter: blur(20px); opacity: 0; transition: 0.5s; }
+        .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; }
+        button { padding: 15px; background: #f9e076; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .screen { position: fixed; inset: 0; background: #000; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+    <div id="start" class="screen">
+        <h1>${config.title}</h1>
+        <button onclick="document.getElementById('start').style.display='none'">${config.btn}</button>
+    </div>
+    
+    <div id="score" style="font-size: 30px;">0</div>
+    <div class="pig-container">
+        <div id="glow" class="gold-glow"></div>
+        <img id="pig-img" src="${config.pigs[0]}" class="pig">
+    </div>
+    <div id="q-text" style="margin-bottom: 15px; font-weight: bold;"></div>
+    <div id="btn-area" class="btns"></div>
+
     <script>
-        const d = \${JSON.stringify(data)};
-        let score = 0, cur = 0;
-        function render() {
-            if(cur >= d.questions.length) {
-                document.getElementById('q').innerText = "ГОТОВО!";
-                document.getElementById('btns').innerHTML = '';
-                document.getElementById('p').src = d.pigs[5];
+        const data = ${JSON.stringify(config)};
+        let cur = 0; let score = 0;
+
+        function show() {
+            if (cur >= data.questions.length) {
+                document.getElementById('q-text').innerText = "СОКРОВИЩА ВАШИ!";
+                document.getElementById('btn-area').innerHTML = '';
+                document.getElementById('pig-img').src = data.pigs[5];
                 return;
             }
-            const qData = d.questions[cur];
-            document.getElementById('q').innerText = qData.q;
-            const area = document.getElementById('btns'); area.innerHTML = '';
-            [...qData.a].sort(()=>Math.random()-0.5).forEach(txt => {
-                const b = document.createElement('button'); b.innerText = txt;
+            const q = data.questions[cur];
+            document.getElementById('q-text').innerText = q.question;
+            const answers = [q.correct, ...q.wrong].sort(() => Math.random() - 0.5);
+            
+            const area = document.getElementById('btn-area');
+            area.innerHTML = '';
+            answers.forEach(txt => {
+                const b = document.createElement('button');
+                b.innerText = txt;
                 b.onclick = () => {
-                    if(txt === qData.a[0]) { 
-                        score += 100; 
-                        document.getElementById('gl').style.opacity = Math.min(score/500, 1);
-                        document.getElementById('gl').style.transform = "scale(" + (1 + score/500) + ")";
+                    if (txt === q.correct) {
+                        score += 100;
+                        document.getElementById('glow').style.opacity = score / 500;
+                        document.getElementById('glow').style.transform = "translate(-50%, -50%) scale(" + (1 + score/500) + ")";
                     }
-                    document.getElementById('sc').innerText = score;
-                    cur++; render();
+                    document.getElementById('score').innerText = score;
+                    cur++; show();
                 };
                 area.appendChild(b);
             });
         }
-        render();
-    <\/script></body></html>`.replace(/\${/g, '${'); // Возвращаем интерполяцию
+        show();
+    <\/script>
+</body>
+</html>`;
 }
 
 function update() {
@@ -131,21 +152,28 @@ function update() {
     container.style.width = w + 'px';
     container.style.height = h + 'px';
     
-    // Масштабируем для экрана
-    const s = Math.min((window.innerWidth - 400) / w, (window.innerHeight - 50) / h);
-    container.style.transform = `scale(${s})`;
+    // Подгоняем под размер окна
+    const scale = Math.min((window.innerWidth - 400) / w, (window.innerHeight - 50) / h);
+    container.style.transform = `scale(${scale})`;
 
-    // Магия Blob: создаем URL из строки HTML
-    const blob = new Blob([getHTML()], { type: 'text/html' });
-    document.getElementById('ifr').src = URL.createObjectURL(blob);
+    const html = buildGame();
+    document.getElementById('ifr').srcdoc = html;
 }
 
-function showCode() {
+function getCode() {
     const w = document.getElementById('w').value;
-    const h = document.getElementById('height')?.value || 450;
-    const raw = getHTML().replace(/"/g, '&quot;');
-    const code = `<iframe width="${w}" height="${h}" srcdoc="${raw}" frameborder="0" style="border-radius:30px;"></iframe>`;
-    prompt("Скопируйте код для Genially:", code);
+    const h = document.getElementById('h').value;
+    const html = buildGame().replace(/"/g, '&quot;');
+    const code = `<iframe width="${w}" height="${h}" srcdoc="${html}" frameborder="0" style="border-radius:20px; overflow:hidden;"></iframe>`;
+    
+    // Создаем временное поле для копирования
+    const el = document.createElement('textarea');
+    el.value = code;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    alert("Код скопирован в буфер обмена!");
 }
 
 window.onload = update;
