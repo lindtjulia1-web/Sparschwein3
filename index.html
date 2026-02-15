@@ -2,14 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>KGB Piggy Bank Pro Editor - Full Custom</title>
+    <title>KGB Piggy Bank Pro Editor - Fixed</title>
     <style>
         :root { --accent: #f9e076; --bg: #1e1e24; --panel: #2a2a32; --border: #3d3d45; --green: #4caf50; --red: #f44336; }
         body { font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         .sidebar { width: 400px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
         .sidebar-content { flex: 1; overflow-y: auto; padding: 20px; }
         h2 { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin: 20px 0 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
-        h3 { font-size: 13px; color: var(--accent); margin: 20px 0 10px; display: flex; align-items: center; justify-content: space-between; }
         .card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 12px; border-radius: 15px; margin-bottom: 20px; }
         label { display: block; font-size: 10px; color: #aaa; text-transform: uppercase; margin-top: 8px; }
         input, select, textarea { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; outline: none; font-size: 13px; }
@@ -21,7 +20,7 @@
         iframe { width: 100%; height: 100%; border: none; display: block; border-radius: 30px; background: transparent; }
         .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         #code-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 100; flex-direction: column; }
-        #result-code { width: 80%; height: 50%; background: #111; color: var(--accent); padding: 20px; border: 1px solid var(--accent); border-radius: 20px; }
+        #result-code { width: 80%; height: 50%; background: #111; color: var(--accent); padding: 20px; border: 1px solid var(--accent); border-radius: 20px; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -42,45 +41,27 @@
             <option value="ru">Русский</option>
             <option value="de">Deutsch</option>
             <option value="en">English</option>
-            <option value="fr">Français</option>
         </select>
         <label>Шрифт</label>
         <select id="font-family">
             <option value="Segoe UI">Segoe UI</option>
-            <option value="Indie Flower">Indie Flower</option>
             <option value="Jolly Lodger">Jolly Lodger</option>
-            <option value="Metrophobic">Metrophobic</option>
-            <option value="ABeeZee">ABeeZee</option>
-            <option value="Abril Fatface">Abril Fatface</option>
-            <option value="Aclonica">Aclonica</option>
+            <option value="Indie Flower">Indie Flower</option>
         </select>
 
         <h2>3. Тексты</h2>
         <label>Заголовок</label><input type="text" id="start-title" value="Сокровища Пирата">
         <label>Кнопка Старт</label><input type="text" id="start-btn-text" value="В БОЙ">
-        <label>Ставка (Stake)</label><input type="text" id="stake-text" value="ВЫБЕРИ СТАВКУ:">
         <label>Фитбек (Победа)</label><input type="text" id="win-text" value="ЗОЛОТО ВАШЕ!">
         <label>Кнопка Рестарт</label><input type="text" id="restart-text" value="ИГРАТЬ СНОВА">
 
         <h2>4. Цвета и Дизайн</h2>
         <div class="color-grid">
-            <div><label>Текст</label><input type="color" id="text-color" value="#f9e076"></div>
-            <div><label>Рамка</label><input type="color" id="neon-color" value="#f9e076"></div>
+            <div><label>Кнопки</label><input type="color" id="btn-color" value="#77dd77"></div>
+            <div><label>Вопрос</label><input type="color" id="q-bg-color" value="#ff00ff"></div>
         </div>
-        <div class="color-grid">
-            <div><label>Кнопки</label><input type="color" id="btn-color" value="#f9e076"></div>
-            <div><label>Вопрос</label><input type="color" id="q-bg-color" value="#333333"></div>
-        </div>
-
-        <h2>5. Параметры кнопок</h2>
-        <label>Размер шрифта (%)</label><input type="range" id="fontSize" min="2" max="8" step="0.1" value="3.5">
-        <div class="color-grid">
-            <div><label>Высота кн.</label><input type="number" id="btn-height" value="9"></div>
-            <div><label>Gap (отступ)</label><input type="number" id="btn-gap" value="2"></div>
-        </div>
-        <label>Отступ от краев (vmin)</label><input type="number" id="btn-padding" value="8">
-
-        <h2>Уровни</h2>
+        
+        <h2>Вопросы</h2>
         <div id="levels-container"></div>
     </div>
     <div style="padding: 20px; border-top: 1px solid var(--border);">
@@ -90,7 +71,7 @@
 </div>
 
 <div class="preview">
-    <div id="device-wrapper"><iframe id="ifr"></iframe></div>
+    <div id="device-wrapper"><iframe id="ifr" allowtransparency="true"></iframe></div>
 </div>
 
 <div id="code-modal">
@@ -102,69 +83,125 @@
 const GITHUB_RAW = "https://raw.githubusercontent.com/lindtjulia1-web/Sparschwein1/main/";
 
 const langData = {
-    ru: { title: "Сокровища Пирата", start: "В БОЙ", stake: "ВЫБЕРИ СТАВКУ:", win: "ЗОЛОТО ВАШЕ!", restart: "ИГРАТЬ СНОВА" },
-    de: { title: "Piratenschatz", start: "START", stake: "EINSATZ WÄHLEN:", win: "DU HAST GEWONNEN!", restart: "NEUSTART" },
-    en: { title: "Pirate Treasure", start: "FIGHT", stake: "CHOOSE STAKE:", win: "VICTORY IS YOURS!", restart: "RESTART" },
-    fr: { title: "Trésor Pirate", start: "JOUER", stake: "CHOISIR MISE:", win: "L'OR EST À VOUS!", restart: "RECOMMENCER" }
+    ru: { title: "Сокровища Пирата", start: "В БОЙ", win: "ЗОЛОТО ВАШЕ!", restart: "ИГРАТЬ СНОВА" },
+    de: { title: "Piratenschatz", start: "START", win: "GEWONNEN!", restart: "NEUSTART" },
+    en: { title: "Pirate Treasure", start: "FIGHT", win: "VICTORY!", restart: "RESTART" }
 };
 
 function applyLang() {
     const d = langData[document.getElementById('lang-select').value];
     document.getElementById('start-title').value = d.title;
     document.getElementById('start-btn-text').value = d.start;
-    document.getElementById('stake-text').value = d.stake;
     document.getElementById('win-text').value = d.win;
     document.getElementById('restart-text').value = d.restart;
 }
 
-for(let i=1; i<=4; i++) {
+// Создаем поля для уровней
+for(let i=1; i<=1; i++) {
     const lvlDiv = document.createElement('div');
     lvlDiv.className = 'card';
-    lvlDiv.innerHTML = `<h3>УРОВЕНЬ ${i}</h3><textarea id="lvl-${i}-q" placeholder="Вопросы"></textarea><textarea id="lvl-${i}-c" placeholder="Верные"></textarea><textarea id="lvl-${i}-w" placeholder="Неверные (через запятую)"></textarea>`;
+    lvlDiv.innerHTML = `<h3>УРОВЕНЬ ${i}</h3>
+    <label>Вопросы (по одному в строке)</label><textarea id="lvl-${i}-q">Где золото?\nСколько 2+2?</textarea>
+    <label>Верные ответы</label><textarea id="lvl-${i}-c">На острове\n4</textarea>
+    <label>Неверные</label><textarea id="lvl-${i}-w">В банке, В лесу\n5, 3</textarea>`;
     document.getElementById('levels-container').appendChild(lvlDiv);
 }
 
 function buildInnerGame() {
     const levels = [];
-    for(let i=1; i<=4; i++) {
-        const qLines = document.getElementById(`lvl-${i}-q`).value.split('\n').filter(l => l.trim());
-        const cLines = document.getElementById(`lvl-${i}-c`).value.split('\n').filter(l => l.trim());
-        const wLines = document.getElementById(`lvl-${i}-w`).value.split('\n').filter(l => l.trim());
-        levels.push(qLines.map((q, idx) => ({ q: q.trim(), a: [(cLines[idx] || "???").trim(), ...(wLines[idx] || "").split(',').map(x => x.trim()).filter(x => x)] })));
-    }
+    const qLines = document.getElementById('lvl-1-q').value.split('\n').filter(l => l.trim());
+    const cLines = document.getElementById('lvl-1-c').value.split('\n').filter(l => l.trim());
+    const wLines = document.getElementById('lvl-1-w').value.split('\n').filter(l => l.trim());
+    
+    levels.push(qLines.map((q, idx) => ({
+        q: q.trim(),
+        a: [(cLines[idx] || "???").trim(), ...(wLines[idx] || "").split(',').map(x => x.trim())]
+    })));
 
     const cfg = {
         bg: document.getElementById('bg-url').value,
         font: document.getElementById('font-family').value,
         title: document.getElementById('start-title').value,
         btnTxt: document.getElementById('start-btn-text').value,
-        stakeTxt: document.getElementById('stake-text').value,
         winTxt: document.getElementById('win-text').value,
         restartTxt: document.getElementById('restart-text').value,
-        txtCol: document.getElementById('text-color').value,
-        neon: document.getElementById('neon-color').value,
         btnCol: document.getElementById('btn-color').value,
         qBg: document.getElementById('q-bg-color').value,
-        fz: document.getElementById('fontSize').value,
-        btnH: document.getElementById('btn-height').value,
-        btnGap: document.getElementById('btn-gap').value,
-        btnPad: document.getElementById('btn-padding').value,
         vol: document.getElementById('volume').value,
         levels: levels,
-        pigs: [GITHUB_RAW+"1.png", GITHUB_RAW+"2.png", GITHUB_RAW+"3.png", GITHUB_RAW+"4.png", GITHUB_RAW+"5.png", GITHUB_RAW+"6.png"],
-        coin: GITHUB_RAW+"7.png",
-        sfxCoin: GITHUB_RAW+"1.mp3"
+        pigs: [GITHUB_RAW+"1.png"], 
+        coin: GITHUB_RAW+"7.png"
     };
 
     return `<!DOCTYPE html><html><head><meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css2?family=${cfg.font.replace(/ /g, '+')}:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=${cfg.font.replace(/ /g, '+')}:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { margin:0; height:100vh; overflow:hidden; font-family: '${cfg.font}', sans-serif; background: transparent; color:${cfg.txtCol}; display:flex; flex-direction:column; border-radius:30px; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}; box-sizing: border-box; transition: 0.3s; }
-        body.error-flash { border-color: #f44336; box-shadow: inset 0 0 30px #f44336; }
-        .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.5; z-index:-1; }
-        #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding: 5vmin ${cfg.btnPad}vmin; box-sizing:border-box; }
-        .score-box { font-size:8vmin; font-weight:900; text-align:center; z-index:10; }
-        #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; }
-        .pig-wrapper { position: relative; height: 35vmin; transition: 0.2s; }
-        .pig { height: 100%; filter: drop-shadow(0 0 10px gold); z-index:5; }
-        .gold-fill { position: absolute; width: 15vmin; height: 15vmin; background: radial-gradient(circle, #f9e076 0%, transparent 70%); border-radius: 50%; opacity: 0; filter: blur(10px); transition:
+        body { margin:0; height:100vh; overflow:hidden; font-family:'${cfg.font}',sans-serif; background:transparent; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; }
+        .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.6; z-index:-1; }
+        #game { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:space-around; padding:20px; box-sizing:border-box; }
+        .q-text { background:${cfg.qBg}; padding:15px 30px; border-radius:15px; font-size:4vmin; font-weight:bold; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align:center; min-width:60%; }
+        .btn-grid { display:grid; grid-template-columns: 1fr 1fr; gap:15px; width:80%; }
+        button { 
+            background: linear-gradient(to bottom, ${cfg.btnCol}, ${cfg.btnCol}cc);
+            border:none; border-radius:12px; padding:15px; font-size:3vmin; font-weight:bold; cursor:pointer;
+            box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.3), 0 1vmin 2vmin rgba(0,0,0,0.2);
+            transition: 0.1s; font-family:inherit;
+        }
+        button:active { transform: translateY(0.4vmin); box-shadow: 0 0.2vmin 0 rgba(0,0,0,0.3); }
+        .screen { position:absolute; inset:0; background:rgba(0,0,0,0.8); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        .pig { height:30vmin; filter: drop-shadow(0 0 10px gold); }
+    </style></head><body>
+        <div class="bg"></div>
+        <div id="game">
+            <div id="start-screen" class="screen">
+                <h1>${cfg.title}</h1>
+                <button onclick="startGame()" style="padding:20px 50px">${cfg.btnTxt}</button>
+            </div>
+            <div id="score" style="font-size:8vmin; font-weight:900;">0</div>
+            <img id="pig" src="${cfg.pigs[0]}" class="pig">
+            <div class="q-text" id="q-label"></div>
+            <div id="btn-area" class="btn-grid"></div>
+        </div>
+        <script>
+            let score=0, curQ=0; const cfg=${JSON.stringify(cfg)};
+            function startGame(){ document.getElementById('start-screen').style.display='none'; showQ(); }
+            function showQ(){
+                const data = cfg.levels[0][curQ];
+                if(!data) { finish(); return; }
+                document.getElementById('q-label').innerText = data.q;
+                const area = document.getElementById('btn-area'); area.innerHTML = '';
+                [...data.a].sort(()=>Math.random()-0.5).forEach(txt => {
+                    const b = document.createElement('button'); b.innerText = txt;
+                    b.onclick = () => {
+                        if(txt === data.a[0]) score += 100;
+                        document.getElementById('score').innerText = score;
+                        curQ++; showQ();
+                    }; area.appendChild(b);
+                });
+            }
+            function finish(){
+                document.getElementById('q-label').innerText = cfg.winTxt;
+                document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="grid-column:1/3">'+cfg.restartTxt+'</button>';
+            }
+        <\/script></body></html>`;
+}
+
+function updatePreview() {
+    const w = document.getElementById('width').value, h = document.getElementById('height').value;
+    const wrapper = document.getElementById('device-wrapper');
+    wrapper.style.width = w + 'px'; wrapper.style.height = h + 'px';
+    document.getElementById('ifr').srcdoc = buildInnerGame();
+}
+
+function getGeniallyCode() {
+    const inner = buildInnerGame();
+    const escaped = inner.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+    const w = document.getElementById('width').value, h = document.getElementById('height').value;
+    document.getElementById('result-code').value = `<iframe width="${w}" height="${h}" srcdoc="${escaped}" frameborder="0" scrolling="no" style="background:transparent;" allowtransparency="true"></iframe>`;
+    document.getElementById('code-modal').style.display = 'flex';
+}
+
+window.onload = updatePreview;
+</script>
+</body>
+</html>
