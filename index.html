@@ -166,11 +166,11 @@ function buildInnerGame() {
             100% { filter: drop-shadow(0 0 10px gold) brightness(1); } 
         }
 
+        /* Ослабленная тряска для долговечности свинки */
         @keyframes pig-shake {
             0%, 100% { transform: scale(1); }
-            20% { transform: scale(1.1) rotate(-3deg); }
-            40% { transform: scale(1.1) rotate(3deg); }
-            60% { transform: scale(1.05) rotate(-1deg); }
+            25% { transform: scale(1.03) rotate(-1.5deg); }
+            75% { transform: scale(1.03) rotate(1.5deg); }
         }
 
         .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.5; z-index:-1; border-radius:24px; }
@@ -180,7 +180,7 @@ function buildInnerGame() {
         #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; min-height: 25vmin; }
         
         .pig-wrapper { position: relative; height: 35vmin; display: flex; align-items: center; justify-content: center; animation: gold-mist 4s infinite ease-in-out; transition: 0.2s; }
-        .pig-shake-anim { animation: pig-shake 0.4s ease-out !important; }
+        .pig-shake-anim { animation: pig-shake 0.25s ease-out !important; }
         
         .pig { height: 100%; width:auto; z-index:6; object-fit: contain; position: relative; pointer-events: none; }
         
@@ -292,7 +292,7 @@ function buildInnerGame() {
                     container.appendChild(c); 
                     snd.coin(); 
                     
-                    // Синхронная тряска: монета долетает до центра за ~600-700мс
+                    // Синхронная мягкая тряска при касании
                     setTimeout(() => {
                         triggerPigShake();
                     }, 600);
