@@ -183,19 +183,20 @@ function buildInnerGame() {
         .screen { position:absolute; inset:0; background:rgba(0,0,0,0.9); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:24px; }
         
         @keyframes fallImproved { 
-            0% { top:-20vh; transform: translateX(-50%) rotate(0deg) scale(var(--sc)); } 
-            100% { top: 110vh; transform: translateX(-50%) rotate(var(--rot)) scale(var(--sc)); } 
+            0% { top:-25vh; transform: translateX(-50%) rotate(0deg) scale(var(--sc)); opacity: 1; } 
+            100% { top: 110vh; transform: translateX(-50%) rotate(var(--rot)) scale(var(--sc)); opacity: 0.8; } 
         }
         
         .falling-coin { 
             position:absolute; 
-            top:-20vh; 
+            top:-25vh; 
             left:50%; 
-            width:8vmin; 
-            height:8vmin; 
+            width:10vmin; 
+            height:10vmin; 
             background:url(${cfg.coin}) center/cover; 
             z-index:100; 
             pointer-events: none;
+            will-change: transform, top;
         }
 
         @keyframes pig-shake { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
@@ -263,15 +264,17 @@ function buildInnerGame() {
                     const c = document.createElement('div'); 
                     c.className = 'falling-coin';
                     
-                    const randomRot = Math.floor(Math.random() * 720) - 360;
-                    const randomScale = (Math.random() * 0.6 + 0.7).toFixed(2);
-                    const randomLeft = isFinal ? Math.floor(Math.random() * 100) : 50;
+                    // Улучшенный рандом
+                    const randomRot = Math.floor(Math.random() * 1080) - 540; // До 3 полных оборотов
+                    const randomScale = (Math.random() * 0.8 + 0.4).toFixed(2); // От 0.4 до 1.2
+                    const randomLeft = isFinal ? Math.floor(Math.random() * 110) - 5 : 50;
+                    const randomDuration = (Math.random() * 0.5 + (isFinal ? 1.2 : 0.8)).toFixed(2); // Длительность падения
                     
                     c.style.setProperty('--rot', randomRot + 'deg');
                     c.style.setProperty('--sc', randomScale);
                     c.style.left = randomLeft + '%';
                     
-                    c.style.animation = 'fallImproved 0.8s ease-in forwards';
+                    c.style.animation = 'fallImproved ' + randomDuration + 's linear forwards';
                     document.body.appendChild(c);
                     
                     const s = (isFinal && i === 0) ? finalSnd.cloneNode() : coinSnd.cloneNode();
@@ -279,9 +282,13 @@ function buildInnerGame() {
                     s.play();
                     
                     const p = document.getElementById('pig-wrap');
-                    p.classList.add('shake-anim');
-                    setTimeout(() => { c.remove(); p.classList.remove('shake-anim'); }, 800);
-                }, i * (isFinal ? 50 : 150));
+                    if(!isFinal) p.classList.add('shake-anim');
+                    
+                    setTimeout(() => { 
+                        c.remove(); 
+                        if(!isFinal) p.classList.remove('shake-anim'); 
+                    }, randomDuration * 1000);
+                }, i * (isFinal ? 40 : 150));
             }
         }
         function updateGold() {
@@ -293,7 +300,7 @@ function buildInnerGame() {
         function finish() {
             document.getElementById('q-label').innerText = cfg.winTxt;
             document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="grid-column: 1/3">'+cfg.finalTxt+'</button>';
-            spawnCoins(35, true); 
+            spawnCoins(50, true); 
         }
     <\/script></body></html>`;
 }
