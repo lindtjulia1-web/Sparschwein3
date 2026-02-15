@@ -2,106 +2,62 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>KGB Piggy Bank Pro Editor</title>
+    <title>KGB Piggy Bank Pro Editor 16:9 Fixed</title>
     <style>
         :root { --accent: #f9e076; --bg: #1e1e24; --panel: #2a2a32; --border: #3d3d45; --green: #4caf50; --red: #f44336; }
         body { font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
         .sidebar { width: 400px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
         .sidebar-content { flex: 1; overflow-y: auto; padding: 20px; }
         h2 { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin: 20px 0 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
-        h3 { font-size: 12px; color: #fff; margin: 15px 0 5px; opacity: 0.8; }
-        
         .card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 12px; border-radius: 15px; margin-bottom: 10px; position: relative; }
-        .del-btn { position: absolute; top: 8px; right: 10px; color: var(--red); cursor: pointer; font-size: 10px; font-weight: bold; }
-        
         label { display: block; font-size: 10px; color: #aaa; text-transform: uppercase; margin-top: 8px; }
-        input, select { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; outline: none; font-size: 13px; }
-        
+        input, select { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; font-size: 13px; }
         .btn { border: none; padding: 14px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
-        .btn-add { background: #444; color: #fff; font-size: 11px; padding: 8px; }
-        .btn-main { background: #ffb347; color: #000; } 
-        .btn-code { background: #77dd77; color: #000; } 
-
-        .preview { flex: 1; background: #0c0c0e; display: flex; align-items: center; justify-content: center; padding: 40px; }
-        #device-wrapper { 
-            position: relative; 
-            overflow: visible; 
-            transition: 0.3s; 
-            background: #000;
-            border-radius: 30px;
-        }
-        iframe { width: 100%; height: 100%; border: none; display: block; border-radius: 30px; }
-        
+        .btn-main { background: #ffb347; color: #000; }
+        .btn-code { background: #77dd77; color: #000; }
+        .preview { flex: 1; background: #0c0c0e; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #device-wrapper { position: relative; background: #000; border-radius: 20px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        iframe { width: 100%; height: 100%; border: none; display: block; border-radius: 20px; }
         #code-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 100; flex-direction: column; }
-        textarea { width: 80%; height: 50%; background: #111; color: var(--accent); padding: 20px; border: 1px solid var(--accent); border-radius: 20px; font-family: monospace; }
-        
+        textarea { width: 80%; height: 50%; background: #111; color: var(--accent); padding: 20px; border: 1px solid var(--accent); border-radius: 20px; }
         .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        input[type="color"] { height: 35px; padding: 2px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
     <div class="sidebar-content">
-        <h2>Настройки Экрана</h2>
+        <h2>Настройки Экрана 16:9</h2>
         <div class="color-grid">
-            <div><label>Ширина</label><input type="number" id="width" value="400"></div>
-            <div><label>Высота</label><input type="number" id="height" value="600"></div>
+            <div><label>Ширина</label><input type="number" id="width" value="1280"></div>
+            <div><label>Высота</label><input type="number" id="height" value="720"></div>
         </div>
-        <label>Фон (URL)</label>
-        <input type="text" id="bg-url" placeholder="URL картинки">
-
-        <h2>Эффекты Виджета</h2>
-        <label>Цвет Рамки</label>
-        <input type="color" id="neon-color" value="#f9e076">
-        <label>Громкость эффектов</label>
-        <input type="range" id="sound-volume" min="0" max="1" step="0.1" value="0.5">
-
-        <h2>Тексты и Локализация</h2>
-        <label>Заголовок старта</label>
-        <input type="text" id="start-title" value="Сокровища Пирата">
-        <label>Кнопка старта</label>
-        <input type="text" id="start-btn-text" value="В БОЙ">
-        <label>Текст финала</label>
-        <input type="text" id="end-text" value="ЗОЛОТО ВАШЕ!">
         
-        <label>Язык</label>
+        <h2>Тексты и Локализация</h2>
         <div class="color-grid">
             <select id="lang">
                 <option value="ru">Русский</option>
                 <option value="en">English</option>
                 <option value="de">Deutsch</option>
             </select>
-            <select id="fontFamily">
-                <option value="'Segoe UI', sans-serif">Segoe UI</option>
-                <option value="'Georgia', serif">Georgia</option>
-                <option value="'Courier New', monospace">Courier</option>
-            </select>
+            <input type="color" id="neon-color" value="#f9e076">
         </div>
 
-        <h2>Настройки кнопок</h2>
-        <label>Размер текста %</label><input type="range" id="fontSize" min="2" max="8" step="0.1" value="4.5">
-        <label>Цвет кнопок</label>
-        <input type="color" id="btn-color" value="#f9e076">
-        
+        <h2>Размеры кнопок</h2>
+        <label>Размер текста %</label><input type="range" id="fontSize" min="2" max="6" step="0.1" value="3.5">
         <div class="color-grid">
-            <div><label>Высота (vmin)</label><input type="number" id="btn-height" value="8"></div>
-            <div><label>Ширина (%)</label><input type="number" id="btn-width" value="100"></div>
+            <div><label>Высота (vmin)</label><input type="number" id="btn-height" value="9"></div>
+            <div><label>Гэп (vmin)</label><input type="number" id="btn-gap" value="1.5"></div>
         </div>
-        <label>Отступ между кнопками (vmin)</label>
-        <input type="number" id="btn-gap" value="2">
 
-        <h2>Отступы (vmin)</h2>
+        <h2>Отступы контента (vmin)</h2>
         <div class="color-grid">
-            <div><label>Верх/Низ</label><input type="number" id="padV" value="11"></div>
-            <div><label>Лево/Право</label><input type="number" id="padH" value="26"></div>
+            <div><label>Верх/Низ</label><input type="number" id="padV" value="4"></div>
+            <div><label>Лево/Право</label><input type="number" id="padH" value="10"></div>
         </div>
 
-        <h2>Уровни сложности</h2>
         <div id="levels-container"></div>
     </div>
-    
     <div style="padding: 20px; border-top: 1px solid var(--border);">
         <button class="btn btn-main" onclick="updatePreview()">ОБНОВИТЬ ПРЕВЬЮ</button>
         <button class="btn btn-code" onclick="getGeniallyCode()">ПОЛУЧИТЬ КОД</button>
@@ -114,258 +70,114 @@
 
 <div id="code-modal">
     <textarea id="result-code" readonly onclick="this.select()"></textarea>
-    <button class="btn" onclick="document.getElementById('code-modal').style.display='none'" style="width: 200px; background:#fff; color:#000;">ЗАКРЫТЬ</button>
+    <button class="btn" onclick="document.getElementById('code-modal').style.display='none'" style="width:200px; background:#fff;">ЗАКРЫТЬ</button>
 </div>
 
 <script>
 const GITHUB_RAW = "https://raw.githubusercontent.com/lindtjulia1-web/Sparschwein1/main/";
 
-for(let i=1; i<=4; i++) {
-    const lvlDiv = document.createElement('div');
-    lvlDiv.innerHTML = `<h3>Уровень ${i}</h3>
-                        <div id="q-container-lvl-${i}"></div>
-                        <button class="btn btn-add" onclick="addQ(${i})">+ Добавить вопрос (Lvl ${i})</button>`;
-    document.getElementById('levels-container').appendChild(lvlDiv);
-}
-
 function addQ(lvl, q="", c="", w="") {
     const container = document.getElementById(`q-container-lvl-${lvl}`);
-    if(!container || container.children.length >= 5) return;
     const div = document.createElement('div');
     div.className = 'card';
-    div.innerHTML = `<span class="del-btn" onclick="this.parentElement.remove()">УДАЛИТЬ</span>
-        <label>Вопрос</label><input type="text" class="inp-q" value="${q}">
+    div.innerHTML = `<label>Вопрос</label><input type="text" class="inp-q" value="${q}">
         <label style="color:var(--green)">Верный</label><input type="text" class="inp-correct" value="${c}">
-        <label style="color:var(--red)">Ложные (через запятую)</label><input type="text" class="inp-wrong" value="${w}">`;
+        <label style="color:var(--red)">Ложные</label><input type="text" class="inp-wrong" value="${w}">`;
     container.appendChild(div);
+}
+
+for(let i=1; i<=4; i++) {
+    const d = document.createElement('div');
+    d.innerHTML = `<h3>Уровень ${i}</h3><div id="q-container-lvl-${i}"></div>`;
+    document.getElementById('levels-container').appendChild(d);
+    if(i===1) addQ(1, "Где золото?", "На острове", "В банке, В лесу");
 }
 
 function buildInnerGame() {
     const levels = [];
     for(let i=1; i<=4; i++) {
         const cards = Array.from(document.querySelectorAll(`#q-container-lvl-${i} .card`));
-        const questions = cards.map(c => ({
+        levels.push(cards.map(c => ({
             q: c.querySelector('.inp-q').value,
             a: [c.querySelector('.inp-correct').value, ...c.querySelector('.inp-wrong').value.split(',').map(x => x.trim())]
-        })).filter(x => x.q);
-        levels.push(questions);
+        })).filter(x => x.q));
     }
 
     const cfg = {
-        bg: document.getElementById('bg-url').value,
-        title: document.getElementById('start-title').value,
-        btnTxt: document.getElementById('start-btn-text').value,
-        endTxt: document.getElementById('end-text').value,
         fz: document.getElementById('fontSize').value,
-        ff: document.getElementById('fontFamily').value,
-        btnCol: document.getElementById('btn-color').value,
+        neon: document.getElementById('neon-color').value,
         btnH: document.getElementById('btn-height').value,
-        btnW: document.getElementById('btn-width').value,
         btnGap: document.getElementById('btn-gap').value,
         pv: document.getElementById('padV').value,
         ph: document.getElementById('padH').value,
         lang: document.getElementById('lang').value,
-        neon: document.getElementById('neon-color').value,
-        vol: document.getElementById('sound-volume').value,
         levels: levels,
         pigs: [GITHUB_RAW+"1.png", GITHUB_RAW+"2.png", GITHUB_RAW+"3.png", GITHUB_RAW+"4.png", GITHUB_RAW+"5.png", GITHUB_RAW+"6.png"],
-        coin: GITHUB_RAW+"7.png",
-        sfxCoin: GITHUB_RAW+"1.mp3",
-        sfxFinal: GITHUB_RAW+"2.mp3"
+        coin: GITHUB_RAW+"7.png"
     };
 
     return `<!DOCTYPE html><html><head><meta charset="UTF-8">
     <style>
-        body { 
-            margin:0; height:100vh; overflow:hidden; font-family:${cfg.ff}; background:#000; color:#fff; display:flex; flex-direction:column; 
-            border-radius:30px; position: relative; box-sizing: border-box;
-            border: 6px solid ${cfg.neon};
-            box-shadow: inset 0 0 15px ${cfg.neon}, 0 0 15px ${cfg.neon};
-        }
-        @keyframes gold-sparkle {
-            0% { filter: drop-shadow(0 0 5px gold) brightness(1); }
-            50% { filter: drop-shadow(0 0 20px #f9e076) brightness(1.2); }
-            100% { filter: drop-shadow(0 0 5px gold) brightness(1); }
-        }
-        .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.5; z-index:-1; border-radius:24px; }
-        #game { height:100%; display:flex; flex-direction:column; padding:${cfg.pv}vmin ${cfg.ph}vmin; box-sizing:border-box; }
-        .score-box { font-size:10vmin; color:#f9e076; font-weight:900; text-align:center; text-shadow: 0 0 15px rgba(249, 224, 118, 0.8); z-index:10; }
-        #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; }
-        .pig { width:75vmin; height:auto; z-index:5; object-fit: contain; animation: gold-sparkle 3s infinite ease-in-out; }
-        .coins-container { position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width:45vmin; height:25vmin; z-index:4; overflow:hidden; pointer-events:none; }
-        .coin-element { position:absolute; width:7vmin; height:7vmin; background:url(${cfg.coin}) center/cover no-repeat; animation: gold-sparkle 2s infinite alternate; }
-        .falling-coin { position:absolute; top:-20vh; width:8vmin; height:8vmin; background:url(${cfg.coin}) center/cover no-repeat; z-index:10; filter: drop-shadow(0 0 10px gold); }
-        .ui { min-height:30%; display:flex; flex-direction:column; justify-content:flex-end; align-items: center; z-index:10; }
-        .q-text { width:100%; font-size:${cfg.fz}vmin; text-align:center; margin-bottom:2vmin; font-weight:bold; min-height:3em; display:flex; align-items:center; justify-content:center; }
-        .btn-grid { display:grid; gap:${cfg.btnGap}vmin; width: 100%; justify-items: center; }
-        button { 
-            border:none; background:${cfg.btnCol}; color:#000; width:${cfg.btnW}%; height:${cfg.btnH}vmin; 
-            border-radius:15px; cursor:pointer; font-weight:bold; font-size:4vmin; transition: 0.2s; padding: 0;
-            animation: gold-sparkle 4s infinite ease-in-out;
-        }
-        button:hover { transform: scale(1.02); filter: brightness(1.3) drop-shadow(0 0 10px gold); }
-        .screen { position:absolute; inset:0; background:rgba(0,0,0,0.9); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:5vmin; border-radius:24px; }
-        #final-shower { position: absolute; inset: 0; pointer-events: none; z-index: 20; display: none; }
-        
-        .smoke-particle {
-            position: absolute;
-            top: -150px;
-            background: radial-gradient(circle, rgba(200,200,200,0.2) 0%, rgba(100,100,100,0) 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 90;
-            filter: blur(25px);
-            animation: smokeMove 3s ease-in forwards;
-        }
-        @keyframes smokeMove {
-            0% { transform: translateY(0) scale(1); opacity: 0.1; }
-            40% { opacity: 0.4; }
-            100% { transform: translateY(120vh) scale(4); opacity: 0.8; }
-        }
-
-        @keyframes fallIn { 0% { top:-20vh; opacity:1; transform: rotate(0deg) scale(1.2); } 100% { top: 50%; transform: rotate(360deg) scale(0.6); opacity: 0; } }
-        @keyframes endRain { 0% { top:-10vh; opacity:1; } 100% { top:110vh; opacity:0.3; } }
+        body { margin:0; height:100vh; overflow:hidden; font-family:sans-serif; background:#000; color:#fff; border: 4px solid ${cfg.neon}; box-sizing: border-box; border-radius:20px; }
+        #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding:${cfg.pv}vmin ${cfg.ph}vmin; box-sizing:border-box; position:relative; z-index:2; }
+        .score { font-size:7vmin; color:${cfg.neon}; font-weight:900; text-align:center; }
+        #pile-box { flex:1; display:flex; justify-content:center; align-items:center; position:relative; min-height: 30vmin; }
+        .pig { height:40vmin; width:auto; object-fit:contain; z-index:5; }
+        .ui { display:flex; flex-direction:column; gap:1vmin; }
+        .q-text { font-size:${cfg.fz}vmin; text-align:center; font-weight:bold; min-height:1.5em; }
+        .btn-grid { display:grid; grid-template-columns: 1fr 1fr; gap:${cfg.btnGap}vmin; }
+        button { border:none; background:${cfg.neon}; color:#000; height:${cfg.btnH}vmin; border-radius:12px; font-weight:bold; font-size:3vmin; cursor:pointer; }
+        .screen { position:absolute; inset:0; background:rgba(0,0,0,0.9); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        .coin-element { position:absolute; width:4vmin; height:4vmin; background:url(${cfg.coin}) center/cover; }
+        .bg-overlay { position:fixed; inset:0; background: radial-gradient(circle at center, transparent 0%, #000 90%); z-index:1; opacity:0.6; }
     </style></head><body>
-        <div id="final-shower"></div>
-        <div class="bg"></div>
+        <div class="bg-overlay"></div>
         <div id="game">
-            <div id="start-screen" class="screen">
-                <h1 style="font-size:8vmin; color:#f9e076; text-shadow: 0 0 20px rgba(249, 224, 118, 0.5);">${cfg.title}</h1>
-                <button onclick="startGame()" style="width:60%; height:10vmin; animation:none;">${cfg.btnTxt}</button>
-            </div>
-            <div class="score-box" id="total-score">0</div>
-            <div id="pile-box"><img id="pig-img" src="${cfg.pigs[0]}" class="pig"><div class="coins-container" id="pile"></div></div>
+            <div id="start-screen" class="screen"><button onclick="startGame()" style="width:40vmin; height:10vmin;">В БОЙ</button></div>
+            <div class="score" id="total-score">0</div>
+            <div id="pile-box"><img id="pig-img" src="${cfg.pigs[0]}" class="pig"><div id="pile" style="position:absolute; inset:0;"></div></div>
             <div class="ui"><div class="q-text" id="q-label"></div><div id="btn-area" class="btn-grid"></div></div>
         </div>
     <script>
-        let score = 0, currentLvl = 0, currentQ = 0, stake = 0;
-        const cfg = ${JSON.stringify(cfg)};
-        const labels = { ru: "СТАВКА:", en: "STAKE:", de: "EINSATZ:" };
-
-        const snd = {
-            coin: () => {
-                const a = new Audio(cfg.sfxCoin);
-                a.volume = cfg.vol || 0.5;
-                a.play().catch(()=>{});
-            },
-            final: () => {
-                const a = new Audio(cfg.sfxFinal);
-                a.loop = true;
-                a.volume = cfg.vol || 0.5;
-                a.play().catch(()=>{});
-            }
-        };
-
-        function startGame() { 
-            document.getElementById('start-screen').style.display='none'; 
-            nextStep(); 
-        }
-
-        function nextStep() {
-            if(currentLvl >= cfg.levels.length) { finishGame(); return; }
-            if(cfg.levels[currentLvl].length === 0) { currentLvl++; nextStep(); return; }
-            if(currentQ >= cfg.levels[currentLvl].length) { currentLvl++; currentQ = 0; nextStep(); return; }
+        let score=0, cL=0, cQ=0, stake=0; const cfg=${JSON.stringify(cfg)};
+        function startGame(){ document.getElementById('start-screen').style.display='none'; nextStep(); }
+        function nextStep(){ 
+            if(cL>=cfg.levels.length) { document.getElementById('q-label').innerText="ФИНАЛ!"; return; }
+            if(cQ>=cfg.levels[cL].length) { cL++; cQ=0; nextStep(); return; }
             showStakes();
         }
-
-        function showStakes() {
-            document.getElementById('q-label').innerText = labels[cfg.lang] || labels.en;
-            const area = document.getElementById('btn-area'); area.innerHTML = '';
-            [10, 50, 100, 250].forEach(val => {
-                const b = document.createElement('button'); b.innerText = val;
-                b.onclick = () => { stake = val; showQuestion(); }; area.appendChild(b);
+        function showStakes(){
+            document.getElementById('q-label').innerText = "ВЫБЕРИ СТАВКУ";
+            const a=document.getElementById('btn-area'); a.innerHTML='';
+            [10,50,100,250].forEach(v=>{ const b=document.createElement('button'); b.innerText=v; b.onclick=()=>{stake=v;showQ();}; a.appendChild(b); });
+        }
+        function showQ(){
+            const d=cfg.levels[cL][cQ]; document.getElementById('q-label').innerText=d.q;
+            const a=document.getElementById('btn-area'); a.innerHTML='';
+            [...d.a].sort(()=>Math.random()-0.5).forEach(t=>{
+                const b=document.createElement('button'); b.innerText=t;
+                b.onclick=()=>{
+                    if(t===d.a[0]){ score+=stake; addC(); document.getElementById('pig-img').src=cfg.pigs[Math.min(cL+1,5)]; }
+                    else { score=Math.max(0,score-stake); }
+                    document.getElementById('total-score').innerText=score; cQ++; setTimeout(nextStep,1000);
+                }; a.appendChild(b);
             });
         }
-
-        function showQuestion() {
-            const data = cfg.levels[currentLvl][currentQ];
-            document.getElementById('q-label').innerText = data.q;
-            const area = document.getElementById('btn-area'); area.innerHTML = '';
-            [...data.a].sort(() => Math.random() - 0.5).forEach(txt => {
-                const b = document.createElement('button'); b.innerText = txt;
-                b.onclick = () => {
-                    if(txt === data.a[0]) { 
-                        score += stake; spawnCoins(Math.ceil(stake/10));
-                        if(currentLvl < 5) document.getElementById('pig-img').src = cfg.pigs[currentLvl+1];
-                    } else { 
-                        score = Math.max(0, score - stake); removeCoins(Math.ceil(stake/10));
-                        spawnSmoke();
-                    }
-                    document.getElementById('total-score').innerText = score;
-                    currentQ++; setTimeout(nextStep, 1500);
-                }; area.appendChild(b);
-            });
-        }
-
-        function spawnSmoke() {
-            const count = 20;
-            for(let i=0; i<count; i++) {
-                const s = document.createElement('div');
-                s.className = 'smoke-particle';
-                const size = 150 + Math.random() * 200;
-                s.style.width = size + 'px';
-                s.style.height = size + 'px';
-                s.style.left = (Math.random() * 100) + '%';
-                s.style.animationDelay = (Math.random() * 0.4) + 's';
-                document.body.appendChild(s);
-                setTimeout(() => s.remove(), 3500);
-            }
-        }
-
-        function spawnCoins(num) {
-            for(let i=0; i<num; i++) {
-                setTimeout(() => {
-                    const c = document.createElement('div'); c.className = 'falling-coin';
-                    c.style.left = (46 + Math.random()*8) + '%';
-                    c.style.animation = 'fallIn 1.2s ease-in forwards';
-                    document.body.appendChild(c);
-                    snd.coin();
-                    setTimeout(() => { c.remove(); addToPile(); }, 1100);
-                }, i * 150);
-            }
-        }
-
-        function addToPile() {
-            const p = document.getElementById('pile'); const c = document.createElement('div');
-            c.className = 'coin-element';
-            c.style.left = (10 + Math.random() * 70) + '%'; 
-            c.style.top = (20 + Math.random() * 60) + '%';
-            c.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+        function addC(){
+            const p=document.getElementById('pile'); const c=document.createElement('div');
+            c.className='coin-element'; c.style.left=(40+Math.random()*20)+'%'; c.style.top=(40+Math.random()*20)+'%';
             p.appendChild(c);
-        }
-
-        function removeCoins(num) { const p = document.getElementById('pile'); for(let i=0; i<num; i++) if(p.lastChild) p.lastChild.remove(); }
-
-        function finishGame() {
-            document.getElementById('pig-img').src = cfg.pigs[5];
-            document.getElementById('q-label').innerText = cfg.endTxt;
-            document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="animation:none;">RESTART</button>';
-            snd.final();
-            startRain();
-        }
-
-        function startRain() {
-            const f = document.getElementById('final-shower'); f.style.display = 'block';
-            setInterval(() => {
-                const c = document.createElement('div');
-                c.style.position = 'absolute'; c.style.width = '7vmin'; c.style.height = '7vmin';
-                c.style.background = 'url('+cfg.coin+') center/cover';
-                c.style.left = Math.random() * 100 + '%';
-                c.style.top = '-10vh';
-                c.style.animation = 'endRain ' + (2.5 + Math.random() * 2) + 's linear forwards';
-                f.appendChild(c);
-                setTimeout(() => c.remove(), 5000);
-            }, 50);
         }
     <\/script></body></html>`;
 }
 
 function updatePreview() {
-    const wrapper = document.getElementById('device-wrapper');
     const w = document.getElementById('width').value;
     const h = document.getElementById('height').value;
-    wrapper.style.width = w + 'px';
-    wrapper.style.height = h + 'px';
+    const wrp = document.getElementById('device-wrapper');
+    wrp.style.width = w + 'px'; wrp.style.height = h + 'px';
+    const scale = Math.min((window.innerWidth-450)/w, (window.innerHeight-100)/h);
+    wrp.style.transform = `scale(${scale})`;
     document.getElementById('ifr').srcdoc = buildInnerGame();
 }
 
@@ -373,15 +185,11 @@ function getGeniallyCode() {
     const html = buildInnerGame().replace(/"/g, '&quot;');
     const w = document.getElementById('width').value;
     const h = document.getElementById('height').value;
-    const code = `<iframe width="${w}" height="${h}" srcdoc="${html}" frameborder="0" scrolling="no" style="overflow:hidden; display:block; border:none; border-radius:30px;"></iframe>`;
-    document.getElementById('result-code').value = code;
-    document.getElementById('code-modal').style.display = 'flex';
+    document.getElementById('result-code').value = `<iframe width="${w}" height="${h}" srcdoc="${html}" frameborder="0" scrolling="no" style="display:block; border-radius:20px;"></iframe>`;
+    document.getElementById('code-modal').style.display='flex';
 }
 
-window.onload = () => {
-    addQ(1, "Уровень 1: Золото капитана?", "Найти", "Проспать");
-    updatePreview();
-}
+window.onload = updatePreview;
 </script>
 </body>
 </html>
