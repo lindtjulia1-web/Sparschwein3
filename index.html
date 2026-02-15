@@ -166,14 +166,31 @@ function buildInnerGame() {
             100% { filter: drop-shadow(0 0 10px gold) brightness(1); } 
         }
 
+        @keyframes pig-shake {
+            0%, 100% { transform: scale(1); }
+            20% { transform: scale(1.1) rotate(-3deg); }
+            40% { transform: scale(1.1) rotate(3deg); }
+            60% { transform: scale(1.05) rotate(-1deg); }
+        }
+
         .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.5; z-index:-1; border-radius:24px; }
         #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding:${cfg.pv}vmin ${cfg.ph}vmin; box-sizing:border-box; }
         .score-box { font-size:8vmin; color:#f9e076; font-weight:900; text-align:center; text-shadow: 0 0 15px rgba(249, 224, 118, 0.8); z-index:10; }
+        
         #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; min-height: 25vmin; }
         
-        .pig-wrapper { position: relative; height: 35vmin; display: flex; align-items: center; justify-content: center; animation: gold-mist 4s infinite ease-in-out; }
+        .pig-wrapper { position: relative; height: 35vmin; display: flex; align-items: center; justify-content: center; animation: gold-mist 4s infinite ease-in-out; transition: 0.2s; }
+        .pig-shake-anim { animation: pig-shake 0.4s ease-out !important; }
+        
         .pig { height: 100%; width:auto; z-index:6; object-fit: contain; position: relative; pointer-events: none; }
         
+        .gold-fill { 
+            position: absolute; width: 15vmin; height: 15vmin; 
+            background: radial-gradient(circle, #f9e076 0%, transparent 70%);
+            border-radius: 50%; z-index: 5; opacity: 0; 
+            filter: blur(10px); transition: all 1s ease;
+        }
+
         .falling-coin { position:absolute; top:-20vh; left:50%; width:8vmin; height:8vmin; background:url(${cfg.coin}) center/cover no-repeat; z-index:100; filter: drop-shadow(0 0 12px gold); transform: translateX(-50%); pointer-events: none; }
         
         @keyframes fallInCenter { 
@@ -188,15 +205,21 @@ function buildInnerGame() {
         button { border:none; background:${cfg.btnCol}; color:#000; height:${cfg.btnH}vmin; border-radius:15px; cursor:pointer; font-weight:bold; font-size:3.2vmin; transition: 0.2s; padding: 0; }
         button:hover { transform: scale(1.02); filter: brightness(1.2); }
         .screen { position:absolute; inset:0; background:rgba(0,0,0,0.9); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:5vmin; border-radius:24px; }
+        
         #final-shower { position: absolute; inset: 0; pointer-events: none; z-index: 20; display: none; }
-        @keyframes endRain { 0% { top:-10vh; opacity:1; } 100% { top:110vh; opacity:0.3; } }
+        @keyframes endRain { 
+            0% { top:-15vh; opacity:0; transform: rotate(0deg) scale(0.5); } 
+            20% { opacity:1; }
+            100% { top:110vh; opacity:0.3; transform: rotate(var(--rot)) scale(var(--sc)); } 
+        }
     </style></head><body>
         <div id="final-shower"></div><div class="bg"></div>
         <div id="game">
             <div id="start-screen" class="screen"><h1 style="font-size:8vmin; color:#f9e076;">${cfg.title}</h1><button onclick="startGame()" style="width:40vmin; height:10vmin;">${cfg.btnTxt}</button></div>
             <div class="score-box" id="total-score">0</div>
             <div id="pile-box">
-                <div class="pig-wrapper">
+                <div class="pig-wrapper" id="pig-wrap">
+                    <div class="gold-fill" id="gold-core"></div>
                     <img id="pig-img" src="${cfg.pigs[0]}" class="pig">
                 </div>
             </div>
@@ -235,14 +258,31 @@ function buildInnerGame() {
                     if(txt === data.a[0]) { 
                         score += stake; 
                         spawnCoins(Math.ceil(stake/10)); 
+                        updateGoldCore();
+                        triggerPigShake();
                         if(currentLvl < 5) document.getElementById('pig-img').src = cfg.pigs[currentLvl+1]; 
                     }
-                    else { score = Math.max(0, score - stake); }
+                    else { score = Math.max(0, score - stake); updateGoldCore(); }
                     document.getElementById('total-score').innerText = score;
                     currentQ++; setTimeout(nextStep, 1500);
                 }; area.appendChild(b);
             });
         }
+
+        function triggerPigShake() {
+            const w = document.getElementById('pig-wrap');
+            w.classList.remove('pig-shake-anim');
+            void w.offsetWidth;
+            w.classList.add('pig-shake-anim');
+        }
+
+        function updateGoldCore() {
+            const core = document.getElementById('gold-core');
+            const intensity = Math.min(score / 1500, 1); 
+            core.style.opacity = intensity;
+            core.style.transform = "scale(" + (1 + intensity * 1.5) + ")";
+        }
+
         function spawnCoins(num) { 
             const container = document.getElementById('pile-box');
             for(let i=0; i<num; i++) { 
@@ -257,7 +297,19 @@ function buildInnerGame() {
             } 
         }
         function finishGame() { document.getElementById('pig-img').src = cfg.pigs[5]; document.getElementById('q-label').innerText = cfg.endTxt; document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="width: 100%; grid-column: 1 / 3;">RESTART</button>'; snd.final(); startRain(); }
-        function startRain() { const f = document.getElementById('final-shower'); f.style.display = 'block'; setInterval(() => { const c = document.createElement('div'); c.style.position = 'absolute'; c.style.width = '7vmin'; c.style.height = '7vmin'; c.style.background = 'url('+cfg.coin+') center/cover'; c.style.left = Math.random() * 100 + '%'; c.style.top = '-10vh'; c.style.animation = 'endRain ' + (2.5 + Math.random() * 2) + 's linear forwards'; f.appendChild(c); setTimeout(() => c.remove(), 5000); }, 50); }
+        
+        function startRain() { 
+            const f = document.getElementById('final-shower'); 
+            f.style.display = 'block'; 
+            setInterval(() => { 
+                const c = document.createElement('div'); 
+                const size = 4 + Math.random() * 6;
+                const rotation = (Math.random() * 720 - 360) + 'deg';
+                c.style.cssText = "position:absolute; width:"+size+"vmin; height:"+size+"vmin; background:url("+cfg.coin+") center/cover; left:"+Math.random()*100+"%; top:-15vh; --rot:"+rotation+"; --sc:"+(0.8 + Math.random()*0.4)+"; animation: endRain "+(2 + Math.random()*2)+"s linear forwards;";
+                f.appendChild(c); 
+                setTimeout(() => c.remove(), 4000); 
+            }, 60); 
+        }
     <\/script></body></html>`;
 }
 
