@@ -4,29 +4,22 @@
     <meta charset="UTF-8">
     <title>KGB Piggy Bank Pro Editor - Pirate Gold Edition</title>
     <style>
-        :root { --accent: #f9e076; --bg: #1e1e24; --panel: rgba(42, 42, 50, 0.85); --border: #3d3d45; --green: #4caf50; --red: #f44336; }
-        /* body теперь прозрачный */
-        body { font-family: 'Segoe UI', sans-serif; background: transparent; color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Боковая панель с эффектом размытия заднего фона (glassmorphism) */
-        .sidebar { width: 400px; background: var(--panel); backdrop-filter: blur(10px); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
+        :root { --accent: #f9e076; --bg: #1e1e24; --panel: #2a2a32; --border: #3d3d45; --green: #4caf50; --red: #f44336; }
+        body { font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 400px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
         .sidebar-content { flex: 1; overflow-y: auto; padding: 20px; }
-        
         h2 { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin: 20px 0 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
         h3 { font-size: 13px; color: var(--accent); margin: 20px 0 10px; display: flex; align-items: center; justify-content: space-between; }
-        .card { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 12px; border-radius: 15px; margin-bottom: 20px; }
+        .card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 12px; border-radius: 15px; margin-bottom: 20px; }
         label { display: block; font-size: 10px; color: #aaa; text-transform: uppercase; margin-top: 8px; }
-        input, select, textarea { width: 100%; background: rgba(17, 17, 17, 0.8); border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; outline: none; font-size: 13px; line-height: 1.4; }
+        input, select, textarea { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; outline: none; font-size: 13px; line-height: 1.4; }
         textarea { resize: vertical; min-height: 80px; font-family: monospace; }
         .btn { border: none; padding: 14px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
         .btn-main { background: #ffb347; color: #000; } 
         .btn-code { background: #77dd77; color: #000; } 
-        
-        /* Область превью тоже прозрачная */
-        .preview { flex: 1; background: transparent; display: flex; align-items: center; justify-content: center; padding: 40px; }
-        #device-wrapper { position: relative; overflow: visible; transition: 0.3s; background: #000; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        iframe { width: 100%; height: 100%; border: none; display: block; border-radius: 30px; }
-        
+        .preview { flex: 1; background: #0c0c0e; display: flex; align-items: center; justify-content: center; padding: 40px; }
+        #device-wrapper { position: relative; overflow: visible; transition: 0.3s; background: #000; border-radius: 30px; }
+        iframe { width: 100%; height: 100%; border: none; display: block; border-radius: 30px; background: transparent; }
         #code-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 100; flex-direction: column; }
         #result-code { width: 80%; height: 50%; background: #111; color: var(--accent); padding: 20px; border: 1px solid var(--accent); border-radius: 20px; font-family: monospace; }
         .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -70,7 +63,7 @@
         <div id="levels-container"></div>
     </div>
     
-    <div style="padding: 20px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2);">
+    <div style="padding: 20px; border-top: 1px solid var(--border);">
         <button class="btn btn-main" onclick="updatePreview()">ОБНОВИТЬ ПРЕВЬЮ</button>
         <button class="btn btn-code" onclick="getGeniallyCode()">ПОЛУЧИТЬ КОД</button>
     </div>
@@ -136,10 +129,10 @@ function buildInnerGame() {
 
     return `<!DOCTYPE html><html><head><meta charset="UTF-8">
     <style>
-        body { margin:0; height:100vh; overflow:hidden; font-family: sans-serif; background:#000; color:${cfg.txtCol}; display:flex; flex-direction:column; border-radius:30px; position: relative; box-sizing: border-box; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}, 0 0 15px ${cfg.neon}; transition: 0.3s; }
+        body { margin:0; height:100vh; overflow:hidden; font-family: sans-serif; background:transparent; color:${cfg.txtCol}; display:flex; flex-direction:column; border-radius:30px; position: relative; box-sizing: border-box; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}, 0 0 15px ${cfg.neon}; transition: 0.3s; }
         body.error-flash { border-color: #f44336; box-shadow: inset 0 0 30px #f44336, 0 0 30px #f44336; }
         .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.5; z-index:-1; border-radius:24px; }
-        #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding: 5vmin 10vmin; box-sizing:border-box; }
+        #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding: 5vmin 10vmin; box-sizing:border-box; background: transparent; }
         .score-box { font-size:8vmin; color:${cfg.txtCol}; font-weight:900; text-align:center; text-shadow: 0 0 15px rgba(0,0,0,0.5); z-index:10; }
         #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; }
         .pig-wrapper { position: relative; height: 35vmin; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
@@ -151,7 +144,7 @@ function buildInnerGame() {
         button { border:none; background:${cfg.btnCol}; color:#000; height:${cfg.btnH}vmin; border-radius:15px; cursor:pointer; font-weight:bold; font-size:3.2vmin; transition: 0.1s; position: relative; box-shadow: 0 0.8vmin 0 rgba(0,0,0,0.2), inset 0 -0.5vmin 0 rgba(0,0,0,0.1); }
         button:hover { filter: brightness(1.1); transform: translateY(-0.2vmin); }
         button:active { transform: translateY(0.4vmin); box-shadow: 0 0.2vmin 0 rgba(0,0,0,0.2); }
-        .screen { position:absolute; inset:0; background:rgba(0,0,0,0.9); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        .screen { position:absolute; inset:0; background:rgba(0,0,0,0.7); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:24px; }
         @keyframes pig-shake { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.03) rotate(-1.5deg); } 75% { transform: scale(1.03) rotate(1.5deg); } }
         @keyframes pig-no { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
         .pig-shake-anim { animation: pig-shake 0.25s ease-out; }
@@ -264,7 +257,7 @@ function getGeniallyCode() {
     const escapedHtml = innerHtml.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
     const w = document.getElementById('width').value;
     const h = document.getElementById('height').value;
-    document.getElementById('result-code').value = `<iframe width="${w}" height="${h}" srcdoc="${escapedHtml}" frameborder="0" scrolling="no" style="overflow:hidden; border-radius:30px;"></iframe>`;
+    document.getElementById('result-code').value = `<iframe width="${w}" height="${h}" srcdoc="${escapedHtml}" frameborder="0" scrolling="no" style="overflow:hidden; border-radius:30px; background:transparent;"></iframe>`;
     document.getElementById('code-modal').style.display = 'flex';
 }
 
