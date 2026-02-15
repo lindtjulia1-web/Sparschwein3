@@ -163,13 +163,13 @@ function buildInnerGame() {
         body { margin:0; height:100vh; overflow:hidden; font-family: '${cfg.font}', sans-serif; background:transparent; color:${cfg.txtCol}; display:flex; flex-direction:column; border-radius:30px; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}; box-sizing: border-box; transition: 0.3s; }
         body.error-flash { border-color: #f44336; box-shadow: inset 0 0 30px #f44336; }
         .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.5; z-index:-1; }
-        #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding: 5vmin ${cfg.btnPad}vmin; box-sizing:border-box; }
-        .score-box { font-size:8vmin; font-weight:900; text-align:center; z-index:10; }
+        #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding: 5vmin ${cfg.btnPad}vmin; box-sizing:border-box; position: relative; z-index: 50; }
+        .score-box { font-size:8vmin; font-weight:900; text-align:center; z-index:60; }
         #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; }
         .pig-wrapper { position: relative; height: 35vmin; transition: 0.2s; }
-        .pig { height: 100%; filter: drop-shadow(0 0 10px gold); z-index:5; }
+        .pig { height: 100%; filter: drop-shadow(0 0 10px gold); z-index:55; }
         .gold-fill { position: absolute; width: 15vmin; height: 15vmin; background: radial-gradient(circle, #f9e076 0%, transparent 70%); border-radius: 50%; opacity: 0; filter: blur(10px); transition: 1s; left:50%; top:50%; transform: translate(-50%, -50%); }
-        .ui { display:flex; flex-direction:column; align-items: center; z-index:10; }
+        .ui { display:flex; flex-direction:column; align-items: center; z-index:60; }
         .q-text { width:100%; font-size:${cfg.fz}vmin; text-align:center; margin-bottom:${cfg.btnGap}vmin; font-weight:bold; background: ${cfg.qBg}; padding: 2vmin; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
         .btn-grid { display:grid; grid-template-columns: 1fr 1fr; gap: ${cfg.btnGap}vmin; width: 100%; }
         button { 
@@ -183,18 +183,17 @@ function buildInnerGame() {
         .screen { position:absolute; inset:0; background:rgba(0,0,0,0.9); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:24px; }
         
         @keyframes fallImproved { 
-            0% { top:-25vh; transform: translateX(-50%) rotate(0deg) scale(var(--sc)); opacity: 1; } 
-            100% { top: 110vh; transform: translateX(-50%) rotate(var(--rot)) scale(var(--sc)); opacity: 0.8; } 
+            0% { top:-20vh; transform: translateX(-50%) rotate(0deg) scale(var(--sc)); opacity: 1; } 
+            100% { top: 115vh; transform: translateX(-50%) rotate(var(--rot)) scale(var(--sc)); opacity: 0.7; } 
         }
         
         .falling-coin { 
             position:absolute; 
-            top:-25vh; 
+            top:-20vh; 
             left:50%; 
-            width:10vmin; 
-            height:10vmin; 
+            width:9vmin; 
+            height:9vmin; 
             background:url(${cfg.coin}) center/cover; 
-            z-index:100; 
             pointer-events: none;
             will-change: transform, top;
         }
@@ -264,17 +263,21 @@ function buildInnerGame() {
                     const c = document.createElement('div'); 
                     c.className = 'falling-coin';
                     
-                    // Улучшенный рандом
-                    const randomRot = Math.floor(Math.random() * 1080) - 540; // До 3 полных оборотов
-                    const randomScale = (Math.random() * 0.8 + 0.4).toFixed(2); // От 0.4 до 1.2
-                    const randomLeft = isFinal ? Math.floor(Math.random() * 110) - 5 : 50;
-                    const randomDuration = (Math.random() * 0.5 + (isFinal ? 1.2 : 0.8)).toFixed(2); // Длительность падения
+                    const randomRot = Math.floor(Math.random() * 1440) - 720; 
+                    const randomScale = (Math.random() * 0.9 + 0.3).toFixed(2); // От 0.3 до 1.2
+                    const randomLeft = isFinal ? Math.floor(Math.random() * 110) - 5 : (Math.random() * 60 + 20);
+                    const randomDuration = (Math.random() * 1.5 + (isFinal ? 2.5 : 1.8)).toFixed(2); // Медленное падение
                     
+                    // Эффект глубины: случайный z-index (перед интерфейсом или за ним)
+                    const layer = Math.random() > 0.4 ? 70 : 10;
+                    c.style.zIndex = layer;
+                    if(layer === 10) c.style.filter = "blur(2px) brightness(0.7)"; 
+
                     c.style.setProperty('--rot', randomRot + 'deg');
                     c.style.setProperty('--sc', randomScale);
                     c.style.left = randomLeft + '%';
                     
-                    c.style.animation = 'fallImproved ' + randomDuration + 's linear forwards';
+                    c.style.animation = 'fallImproved ' + randomDuration + 's cubic-bezier(.45,.05,.55,.95) forwards';
                     document.body.appendChild(c);
                     
                     const s = (isFinal && i === 0) ? finalSnd.cloneNode() : coinSnd.cloneNode();
@@ -288,7 +291,7 @@ function buildInnerGame() {
                         c.remove(); 
                         if(!isFinal) p.classList.remove('shake-anim'); 
                     }, randomDuration * 1000);
-                }, i * (isFinal ? 40 : 150));
+                }, i * (isFinal ? 30 : 180));
             }
         }
         function updateGold() {
@@ -300,7 +303,7 @@ function buildInnerGame() {
         function finish() {
             document.getElementById('q-label').innerText = cfg.winTxt;
             document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="grid-column: 1/3">'+cfg.finalTxt+'</button>';
-            spawnCoins(50, true); 
+            spawnCoins(60, true); 
         }
     <\/script></body></html>`;
 }
