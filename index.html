@@ -1,3 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>KGB Piggy Bank Pro Editor - Pirate Gold Edition</title>
+    <style>
+        :root { --accent: #f9e076; --bg: #1e1e24; --panel: #2a2a32; --border: #3d3d45; --green: #4caf50; --red: #f44336; }
+        body { font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 400px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
+        .sidebar-content { flex: 1; overflow-y: auto; padding: 20px; }
+        h2 { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin: 20px 0 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
+        h3 { font-size: 13px; color: var(--accent); margin: 20px 0 10px; display: flex; align-items: center; justify-content: space-between; }
+        .card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 12px; border-radius: 15px; margin-bottom: 20px; }
+        label { display: block; font-size: 10px; color: #aaa; text-transform: uppercase; margin-top: 8px; }
+        input, select, textarea { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; outline: none; font-size: 13px; line-height: 1.4; }
+        textarea { resize: vertical; min-height: 80px; font-family: monospace; }
+        .btn { border: none; padding: 14px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .btn-main { background: #ffb347; color: #000; } 
+        .btn-code { background: #77dd77; color: #000; } 
+        .preview { flex: 1; background: #0c0c0e; display: flex; align-items: center; justify-content: center; padding: 40px; }
+        #device-wrapper { position: relative; overflow: visible; transition: 0.3s; background: #000; border-radius: 30px; }
+        iframe { width: 100%; height: 100%; border: none; display: block; border-radius: 30px; }
+        #code-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 100; flex-direction: column; }
+        #result-code { width: 80%; height: 50%; background: #111; color: var(--accent); padding: 20px; border: 1px solid var(--accent); border-radius: 20px; font-family: monospace; }
+        .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input[type="color"] { height: 35px; padding: 2px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-content">
+        <h2>Настройки Экрана</h2>
+        <div class="color-grid">
+            <div><label>Ширина</label><input type="number" id="width" value="800"></div>
+            <div><label>Высота</label><input type="number" id="height" value="450"></div>
+        </div>
+        <label>Фон (URL)</label>
+        <input type="text" id="bg-url" placeholder="URL картинки">
+
+        <h2>Эффекты Виджета</h2>
+        <label>Цвет Рамки</label>
+        <input type="color" id="neon-color" value="#f9e076">
+        <label>Громкость эффектов</label>
+        <input type="range" id="sound-volume" min="0" max="1" step="0.1" value="0.5">
+
+        <h2>Тексты и Локализация</h2>
+        <label>Заголовок старта</label>
+        <input type="text" id="start-title" value="Сокровища Пирата">
+        <label>Кнопка старта</label>
+        <input type="text" id="start-btn-text" value="В БОЙ">
+        <label>Текст финала</label>
+        <input type="text" id="end-text" value="ЗОЛОТО ВАШЕ!">
+        
+        <label>Язык</label>
+        <div class="color-grid">
+            <select id="lang">
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+            </select>
+            <select id="fontFamily">
+                <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                <option value="'Georgia', serif">Georgia</option>
+                <option value="'Courier New', monospace">Courier</option>
+            </select>
+        </div>
+
+        <h2>Настройки кнопок</h2>
+        <label>Размер текста %</label><input type="range" id="fontSize" min="2" max="8" step="0.1" value="3.5">
+        <label>Цвет кнопок</label>
+        <input type="color" id="btn-color" value="#f9e076">
+        <div class="color-grid">
+            <div><label>Высота (vmin)</label><input type="number" id="btn-height" value="9"></div>
+            <div><label>Ширина (%)</label><input type="number" id="btn-width" value="100"></div>
+        </div>
+        <label>Отступ между кнопками (vmin)</label>
+        <input type="number" id="btn-gap" value="1.5">
+
+        <h2>Отступы (vmin)</h2>
+        <div class="color-grid">
+            <div><label>Верх/Низ</label><input type="number" id="padV" value="5"></div>
+            <div><label>Лево/Право</label><input type="number" id="padH" value="10"></div>
+        </div>
+
+        <h2>Уровни сложности</h2>
+        <div id="levels-container"></div>
+    </div>
+    
+    <div style="padding: 20px; border-top: 1px solid var(--border);">
+        <button class="btn btn-main" onclick="updatePreview()">ОБНОВИТЬ ПРЕВЬЮ</button>
+        <button class="btn btn-code" onclick="getGeniallyCode()">ПОЛУЧИТЬ КОД</button>
+    </div>
+</div>
+
+<div class="preview">
+    <div id="device-wrapper"><iframe id="ifr"></iframe></div>
+</div>
+
+<div id="code-modal">
+    <textarea id="result-code" readonly onclick="this.select()"></textarea>
+    <button class="btn" onclick="document.getElementById('code-modal').style.display='none'" style="width: 200px; background:#fff; color:#000;">ЗАКРЫТЬ</button>
+</div>
+
+<script>
+const GITHUB_RAW = "https://raw.githubusercontent.com/lindtjulia1-web/Sparschwein1/main/";
+
+for(let i=1; i<=4; i++) {
+    const lvlDiv = document.createElement('div');
+    lvlDiv.className = 'card';
+    lvlDiv.innerHTML = `
+        <h3>УРОВЕНЬ ${i}</h3>
+        <label>1. Вопросы</label>
+        <textarea id="lvl-${i}-q"></textarea>
+        <label style="color:var(--green)">2. Правильные ответы</label>
+        <textarea id="lvl-${i}-c"></textarea>
+        <label style="color:var(--red)">3. Неправильные (через запятую)</label>
+        <textarea id="lvl-${i}-w"></textarea>
+    `;
+    document.getElementById('levels-container').appendChild(lvlDiv);
+}
+
 function buildInnerGame() {
     const levels = [];
     for(let i=1; i<=4; i++) {
@@ -47,18 +169,16 @@ function buildInnerGame() {
         .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.5; z-index:-1; border-radius:24px; }
         #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding:${cfg.pv}vmin ${cfg.ph}vmin; box-sizing:border-box; }
         .score-box { font-size:8vmin; color:#f9e076; font-weight:900; text-align:center; text-shadow: 0 0 15px rgba(249, 224, 118, 0.8); z-index:10; }
-        
-        #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; min-height: 25vmin; overflow: visible; }
+        #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; min-height: 25vmin; }
         
         .pig-wrapper { position: relative; height: 35vmin; display: flex; align-items: center; justify-content: center; animation: gold-mist 4s infinite ease-in-out; }
         .pig { height: 100%; width:auto; z-index:6; object-fit: contain; position: relative; pointer-events: none; }
         
-        /* Исправленная анимация: летит в центр и исчезает в "точке" */
-        .falling-coin { position:absolute; top:-30vh; left:50%; width:8vmin; height:8vmin; background:url(${cfg.coin}) center/cover no-repeat; z-index:100; filter: drop-shadow(0 0 12px gold); transform: translateX(-50%); pointer-events: none; }
+        .falling-coin { position:absolute; top:-20vh; left:50%; width:8vmin; height:8vmin; background:url(${cfg.coin}) center/cover no-repeat; z-index:100; filter: drop-shadow(0 0 12px gold); transform: translateX(-50%); pointer-events: none; }
         
-        @keyframes fallToCenter { 
-            0% { top:-30vh; opacity:1; transform: translateX(-50%) rotate(0deg) scale(1); } 
-            70% { opacity:1; }
+        @keyframes fallInCenter { 
+            0% { top:-20vh; opacity:1; transform: translateX(-50%) rotate(0deg) scale(1); } 
+            80% { opacity:1; }
             100% { top: 50%; opacity: 0; transform: translateX(-50%) rotate(360deg) scale(0); } 
         }
 
@@ -129,10 +249,10 @@ function buildInnerGame() {
                 setTimeout(() => { 
                     const c = document.createElement('div'); 
                     c.className = 'falling-coin'; 
-                    c.style.animation = 'fallToCenter 0.6s ease-in forwards'; 
+                    c.style.animation = 'fallInCenter 0.7s ease-in forwards'; 
                     container.appendChild(c); 
                     snd.coin(); 
-                    setTimeout(() => { c.remove(); }, 600); 
+                    setTimeout(() => { c.remove(); }, 700); 
                 }, i * 120); 
             } 
         }
@@ -140,3 +260,38 @@ function buildInnerGame() {
         function startRain() { const f = document.getElementById('final-shower'); f.style.display = 'block'; setInterval(() => { const c = document.createElement('div'); c.style.position = 'absolute'; c.style.width = '7vmin'; c.style.height = '7vmin'; c.style.background = 'url('+cfg.coin+') center/cover'; c.style.left = Math.random() * 100 + '%'; c.style.top = '-10vh'; c.style.animation = 'endRain ' + (2.5 + Math.random() * 2) + 's linear forwards'; f.appendChild(c); setTimeout(() => c.remove(), 5000); }, 50); }
     <\/script></body></html>`;
 }
+
+function updatePreview() {
+    const wrapper = document.getElementById('device-wrapper');
+    const w = document.getElementById('width').value;
+    const h = document.getElementById('height').value;
+    wrapper.style.width = w + 'px';
+    wrapper.style.height = h + 'px';
+    const scale = Math.min((window.innerWidth - 450) / w, (window.innerHeight - 100) / h);
+    wrapper.style.transform = `scale(${scale})`;
+    document.getElementById('ifr').srcdoc = buildInnerGame();
+}
+
+function getGeniallyCode() {
+    const innerHtml = buildInnerGame();
+    const escapedHtml = innerHtml
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+
+    const w = document.getElementById('width').value;
+    const h = document.getElementById('height').value;
+    const code = `<iframe width="${w}" height="${h}" srcdoc="${escapedHtml}" frameborder="0" scrolling="no" style="overflow:hidden; display:block; border:none; border-radius:30px;"></iframe>`;
+    document.getElementById('result-code').value = code;
+    document.getElementById('code-modal').style.display = 'flex';
+}
+
+window.onload = () => {
+    document.getElementById('lvl-1-q').value = "Где золото?\nСколько 2+2?";
+    document.getElementById('lvl-1-c').value = "На острове\n4";
+    document.getElementById('lvl-1-w').value = "В банке, В лесу\n5, 3";
+    updatePreview();
+}
+</script>
+</body>
+</html>
