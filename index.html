@@ -37,7 +37,7 @@
         </div>
         <label>Шрифт виджета</label>
         <select id="font-family">
-            <option value="Segoe UI">Segoe UI (Standart)</option>
+            <option value="Segoe UI">Segoe UI</option>
             <option value="Indie Flower">Indie Flower</option>
             <option value="Jolly Lodger">Jolly Lodger</option>
             <option value="Metrophobic">Metrophobic</option>
@@ -49,27 +49,31 @@
             <option value="Acme">Acme</option>
             <option value="Actor">Actor</option>
         </select>
-        <label>Язык интерфейса</label>
-        <select id="lang-select">
+        <label>Язык (пресеты)</label>
+        <select id="lang-select" onchange="applyLang()">
             <option value="ru">Русский</option>
             <option value="de">Deutsch</option>
             <option value="en">English</option>
             <option value="fr">Français</option>
         </select>
 
-        <h2>Цвета и Тексты</h2>
-        <div class="color-grid">
-            <div><label>Цвет общего текста</label><input type="color" id="text-color" value="#f9e076"></div>
-            <div><label>Цвет рамки</label><input type="color" id="neon-color" value="#f9e076"></div>
-        </div>
+        <h2>Тексты интерфейса</h2>
         <label>Заголовок старта</label>
         <input type="text" id="start-title" value="Сокровища Пирата">
         <label>Кнопка старта</label>
         <input type="text" id="start-btn-text" value="В БОЙ">
-        
-        <h2>Настройки кнопок</h2>
+        <label>Текст победы</label>
+        <input type="text" id="win-text" value="ЗОЛОТО ВАШЕ!">
+        <label>Кнопка рестарта</label>
+        <input type="text" id="restart-text" value="ЗАНОВО">
+
+        <h2>Цвета и Стили</h2>
         <div class="color-grid">
-            <div><label>Цвет кнопок</label><input type="color" id="btn-color" value="#f9e076"></div>
+            <div><label>Текст общий</label><input type="color" id="text-color" value="#f9e076"></div>
+            <div><label>Цвет рамки</label><input type="color" id="neon-color" value="#f9e076"></div>
+        </div>
+        <div class="color-grid">
+            <div><label>Кнопки ответов</label><input type="color" id="btn-color" value="#f9e076"></div>
             <div><label>Фон вопроса</label><input type="color" id="q-bg-color" value="#333333"></div>
         </div>
         <div class="color-grid">
@@ -77,8 +81,8 @@
             <div><label>Размер текста %</label><input type="range" id="fontSize" min="2" max="8" step="0.1" value="3.5"></div>
         </div>
         <div class="color-grid">
-            <div><label>Высота (vmin)</label><input type="number" id="btn-height" value="9"></div>
-            <div><label>Ширина (%)</label><input type="number" id="btn-width" value="100"></div>
+            <div><label>Высота кн. (vmin)</label><input type="number" id="btn-height" value="9"></div>
+            <div><label>Ширина кн. (%)</label><input type="number" id="btn-width" value="100"></div>
         </div>
 
         <h2>Уровни сложности</h2>
@@ -103,22 +107,25 @@
 <script>
 const GITHUB_RAW = "https://raw.githubusercontent.com/lindtjulia1-web/Sparschwein1/main/";
 
-const translations = {
-    ru: { stake: "ВЫБЕРИ СТАВКУ:", win: "ЗОЛОТО ВАШЕ!", restart: "ЗАНОВО" },
-    de: { stake: "EINSATZ WÄHLEN:", win: "DEIN GOLD!", restart: "NEUSTART" },
-    en: { stake: "CHOOSE STAKE:", win: "YOU WIN GOLD!", restart: "RESTART" },
-    fr: { stake: "CHOISIR MISE:", win: "L'OR EST À VOUS!", restart: "RECOMMENCER" }
+const langPresents = {
+    ru: { win: "ЗОЛОТО ВАШЕ!", restart: "ЗАНОВО", start: "В БОЙ", title: "Сокровища Пирата" },
+    de: { win: "DEIN GOLD!", restart: "NEUSTART", start: "LOS GEHT'S", title: "Piratenschatz" },
+    en: { win: "YOU WIN GOLD!", restart: "RESTART", start: "FIGHT", title: "Pirate Treasure" },
+    fr: { win: "L'OR EST À VOUS!", restart: "REJOUER", start: "AU COMBAT", title: "Trésor de Pirate" }
 };
+
+function applyLang() {
+    const l = langPresents[document.getElementById('lang-select').value];
+    document.getElementById('start-title').value = l.title;
+    document.getElementById('start-btn-text').value = l.start;
+    document.getElementById('win-text').value = l.win;
+    document.getElementById('restart-text').value = l.restart;
+}
 
 for(let i=1; i<=4; i++) {
     const lvlDiv = document.createElement('div');
     lvlDiv.className = 'card';
-    lvlDiv.innerHTML = `
-        <h3>УРОВЕНЬ ${i}</h3>
-        <label>Вопросы</label><textarea id="lvl-${i}-q"></textarea>
-        <label style="color:var(--green)">Верные ответы</label><textarea id="lvl-${i}-c"></textarea>
-        <label style="color:var(--red)">Неверные (через запятую)</label><textarea id="lvl-${i}-w"></textarea>
-    `;
+    lvlDiv.innerHTML = `<h3>УРОВЕНЬ ${i}</h3><textarea id="lvl-${i}-q" placeholder="Вопросы"></textarea><textarea id="lvl-${i}-c" placeholder="Верные"></textarea><textarea id="lvl-${i}-w" placeholder="Неверные"></textarea>`;
     document.getElementById('levels-container').appendChild(lvlDiv);
 }
 
@@ -128,16 +135,14 @@ function buildInnerGame() {
         const qLines = document.getElementById(`lvl-${i}-q`).value.split('\n').filter(l => l.trim());
         const cLines = document.getElementById(`lvl-${i}-c`).value.split('\n').filter(l => l.trim());
         const wLines = document.getElementById(`lvl-${i}-w`).value.split('\n').filter(l => l.trim());
-        const questions = qLines.map((q, index) => ({
-            q: q.trim(),
-            a: [(cLines[index] || "???").trim(), ...(wLines[index] || "").split(',').map(x => x.trim()).filter(x => x)]
-        }));
-        levels.push(questions);
+        levels.push(qLines.map((q, idx) => ({ q: q.trim(), a: [(cLines[idx] || "???").trim(), ...(wLines[idx] || "").split(',').map(x => x.trim()).filter(x => x)] })));
     }
 
     const cfg = {
         title: document.getElementById('start-title').value,
         btnTxt: document.getElementById('start-btn-text').value,
+        winTxt: document.getElementById('win-text').value,
+        revTxt: document.getElementById('restart-text').value,
         txtCol: document.getElementById('text-color').value,
         qBg: document.getElementById('q-bg-color').value,
         qTxt: document.getElementById('q-text-color').value,
@@ -147,34 +152,33 @@ function buildInnerGame() {
         btnW: document.getElementById('btn-width').value,
         neon: document.getElementById('neon-color').value,
         font: document.getElementById('font-family').value,
-        lang: document.getElementById('lang-select').value,
         levels: levels,
         pigs: [GITHUB_RAW+"1.png", GITHUB_RAW+"2.png", GITHUB_RAW+"3.png", GITHUB_RAW+"4.png", GITHUB_RAW+"5.png", GITHUB_RAW+"6.png"],
         coin: GITHUB_RAW+"7.png",
         sfxCoin: GITHUB_RAW+"1.mp3"
     };
 
-    const dict = translations[cfg.lang];
-
     return `<!DOCTYPE html><html><head><meta charset="UTF-8">
     <link href="https://fonts.googleapis.com/css2?family=${cfg.font.replace(' ', '+')}&display=swap" rel="stylesheet">
     <style>
-        body { margin:0; height:100vh; overflow:hidden; font-family: '${cfg.font}', sans-serif; background:transparent; color:${cfg.txtCol}; display:flex; flex-direction:column; border-radius:30px; position: relative; box-sizing: border-box; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}, 0 0 15px ${cfg.neon}; }
-        #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding: 5vmin 10vmin; box-sizing:border-box; background:transparent; }
-        .score-box { font-size:8vmin; color:${cfg.txtCol}; font-weight:900; text-align:center; text-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        body { margin:0; height:100vh; overflow:hidden; font-family: '${cfg.font}', sans-serif; background:transparent; color:${cfg.txtCol}; display:flex; flex-direction:column; border-radius:30px; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}; transition: 0.3s; box-sizing: border-box; }
+        body.error-flash { border-color: #f44336; box-shadow: inset 0 0 30px #f44336; }
+        #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding: 5vmin 10vmin; box-sizing:border-box; }
+        .score-box { font-size:8vmin; font-weight:900; text-align:center; }
         #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; }
-        .pig-wrapper { position: relative; height: 35vmin; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .pig { height: 100%; z-index:6; filter: drop-shadow(0 0 10px gold); }
+        .pig-wrapper { position: relative; height: 35vmin; transition: 0.2s; }
+        .pig { height: 100%; filter: drop-shadow(0 0 10px gold); }
         .ui { display:flex; flex-direction:column; align-items: center; z-index:10; }
-        .q-text { width:100%; font-size:${cfg.fz}vmin; text-align:center; margin-bottom:2vmin; font-weight:bold; background: ${cfg.qBg}; color: ${cfg.qTxt}; padding: 2vmin; border-radius: 15px; box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1); }
+        .q-text { width:100%; font-size:${cfg.fz}vmin; text-align:center; margin-bottom:2vmin; font-weight:bold; background: ${cfg.qBg}; color: ${cfg.qTxt}; padding: 2vmin; border-radius: 15px; border: 2px solid rgba(255,255,255,0.1); }
         .btn-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 2vmin; width: ${cfg.btnW}%; }
-        button { border:none; background:${cfg.btnCol}; color:#000; height:${cfg.btnH}vmin; border-radius:15px; cursor:pointer; font-weight:bold; font-size:3.2vmin; transition: 0.1s; font-family: inherit; position: relative; }
-        button:active { transform: translateY(0.4vmin); }
-        .screen { position:absolute; inset:0; background:transparent; z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        @keyframes fall { 0% { top:-20vh; opacity:1; } 100% { top: 50%; opacity: 0; } }
-        .falling-coin { position:absolute; top:-20vh; left:50%; width:8vmin; height:8vmin; background:url(${cfg.coin}) center/cover; z-index:100; transform: translateX(-50%); }
-        @keyframes shake { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .shake { animation: shake 0.2s ease-in-out; }
+        button { border:none; background:${cfg.btnCol}; color:#000; height:${cfg.btnH}vmin; border-radius:15px; cursor:pointer; font-weight:bold; font-size:3.2vmin; font-family: inherit; }
+        .screen { position:absolute; inset:0; z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        @keyframes fall { 0% { top:-20vh; } 100% { top: 50%; opacity: 0; } }
+        .falling-coin { position:absolute; top:-20vh; left:50%; width:8vmin; height:8vmin; background:url(${cfg.coin}) center/cover; transform: translateX(-50%); }
+        @keyframes pig-shake { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes pig-no { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-15px); } 75% { transform: translateX(15px); } }
+        .pig-shake-anim { animation: pig-shake 0.2s ease; }
+        .pig-no-anim { animation: pig-no 0.4s ease-in-out; }
     </style></head><body>
         <div id="game">
             <div id="start-screen" class="screen">
@@ -188,26 +192,22 @@ function buildInnerGame() {
     <script>
         let score = 0, currentLvl = 0, currentQ = 0, stake = 0;
         const cfg = ${JSON.stringify(cfg)};
-        const dict = ${JSON.stringify(dict)};
         const coinSnd = new Audio(cfg.sfxCoin);
 
         function startGame() { document.getElementById('start-screen').style.display='none'; nextStep(); }
-        
         function nextStep() {
             if(currentLvl >= cfg.levels.length) { finishGame(); return; }
             if(currentQ >= cfg.levels[currentLvl].length) { currentLvl++; currentQ = 0; nextStep(); return; }
             showStakes();
         }
-
         function showStakes() {
-            document.getElementById('q-label').innerText = dict.stake;
+            document.getElementById('q-label').innerText = "STAKE:";
             const area = document.getElementById('btn-area'); area.innerHTML = '';
             [10, 50, 100, 250].forEach(val => {
                 const b = document.createElement('button'); b.innerText = val;
                 b.onclick = () => { stake = val; showQuestion(); }; area.appendChild(b);
             });
         }
-
         function showQuestion() {
             const data = cfg.levels[currentLvl][currentQ];
             document.getElementById('q-label').innerText = data.q;
@@ -218,45 +218,43 @@ function buildInnerGame() {
                     if(txt === data.a[0]) { 
                         score += stake; spawnCoins(Math.ceil(stake/10)); 
                         document.getElementById('pig-img').src = cfg.pigs[Math.min(currentLvl+1, 5)]; 
-                    } else { score = Math.max(0, score - stake); }
+                    } else { 
+                        score = Math.max(0, score - stake); triggerWrong();
+                    }
                     document.getElementById('total-score').innerText = score;
                     currentQ++; setTimeout(nextStep, 1000);
                 }; area.appendChild(b);
             });
         }
-
+        function triggerWrong() {
+            const w = document.getElementById('pig-wrap');
+            w.classList.add('pig-no-anim'); document.body.classList.add('error-flash');
+            setTimeout(() => { w.classList.remove('pig-no-anim'); document.body.classList.remove('error-flash'); }, 400);
+        }
         function spawnCoins(num) {
             for(let i=0; i<num; i++) {
                 setTimeout(() => {
                     const c = document.createElement('div'); c.className = 'falling-coin';
                     c.style.animation = 'fall 0.6s ease-in forwards';
                     document.getElementById('pile-box').appendChild(c);
-                    
-                    // Звук монеты
-                    const s = coinSnd.cloneNode();
-                    s.volume = 0.5;
-                    s.play();
-
+                    const s = coinSnd.cloneNode(); s.volume = 0.4; s.play();
                     const p = document.getElementById('pig-wrap');
-                    p.classList.add('shake');
-                    setTimeout(() => { c.remove(); p.classList.remove('shake'); }, 600);
+                    p.classList.add('pig-shake-anim');
+                    setTimeout(() => { c.remove(); p.classList.remove('pig-shake-anim'); }, 600);
                 }, i * 150);
             }
         }
-
         function finishGame() {
-            document.getElementById('q-label').innerText = dict.win;
-            document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="grid-column: 1/3">'+dict.restart+'</button>';
+            document.getElementById('q-label').innerText = cfg.winTxt;
+            document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="grid-column: 1/3">'+cfg.revTxt+'</button>';
         }
     <\/script></body></html>`;
 }
 
 function updatePreview() {
     const wrapper = document.getElementById('device-wrapper');
-    const w = document.getElementById('width').value;
-    const h = document.getElementById('height').value;
-    wrapper.style.width = w + 'px';
-    wrapper.style.height = h + 'px';
+    const w = document.getElementById('width').value, h = document.getElementById('height').value;
+    wrapper.style.width = w + 'px'; wrapper.style.height = h + 'px';
     const scale = Math.min((window.innerWidth - 450) / w, (window.innerHeight - 100) / h);
     wrapper.style.transform = `scale(${scale})`;
     document.getElementById('ifr').srcdoc = buildInnerGame();
@@ -265,8 +263,7 @@ function updatePreview() {
 function getGeniallyCode() {
     const innerHtml = buildInnerGame();
     const escapedHtml = innerHtml.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-    const w = document.getElementById('width').value;
-    const h = document.getElementById('height').value;
+    const w = document.getElementById('width').value, h = document.getElementById('height').value;
     document.getElementById('result-code').value = `<iframe width="${w}" height="${h}" srcdoc="${escapedHtml}" frameborder="0" scrolling="no" style="overflow:hidden; background:transparent;"></iframe>`;
     document.getElementById('code-modal').style.display = 'flex';
 }
