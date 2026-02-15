@@ -259,7 +259,6 @@ function buildInnerGame() {
                         score += stake; 
                         spawnCoins(Math.ceil(stake/10)); 
                         updateGoldCore();
-                        triggerPigShake();
                         if(currentLvl < 5) document.getElementById('pig-img').src = cfg.pigs[currentLvl+1]; 
                     }
                     else { score = Math.max(0, score - stake); updateGoldCore(); }
@@ -292,6 +291,12 @@ function buildInnerGame() {
                     c.style.animation = 'fallInCenter 0.7s ease-in forwards'; 
                     container.appendChild(c); 
                     snd.coin(); 
+                    
+                    // Синхронная тряска: монета долетает до центра за ~600-700мс
+                    setTimeout(() => {
+                        triggerPigShake();
+                    }, 600);
+
                     setTimeout(() => { c.remove(); }, 700); 
                 }, i * 120); 
             } 
