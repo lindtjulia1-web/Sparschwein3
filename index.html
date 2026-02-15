@@ -9,18 +9,21 @@
         .sidebar { width: 400px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
         .sidebar-content { flex: 1; overflow-y: auto; padding: 20px; }
         h2 { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin: 20px 0 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
+        h3 { font-size: 13px; color: var(--accent); margin: 20px 0 10px; display: flex; align-items: center; justify-content: space-between; }
         .card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 12px; border-radius: 15px; margin-bottom: 20px; }
         label { display: block; font-size: 10px; color: #aaa; text-transform: uppercase; margin-top: 8px; }
-        input, select, textarea { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; outline: none; font-size: 13px; }
-        .btn { border: none; padding: 14px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        input, select, textarea { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; outline: none; font-size: 13px; line-height: 1.4; }
+        textarea { resize: vertical; min-height: 80px; font-family: monospace; }
+        .btn { border: none; padding: 14px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
         .btn-main { background: #ffb347; color: #000; } 
         .btn-code { background: #77dd77; color: #000; } 
         .preview { flex: 1; background: #0c0c0e; display: flex; align-items: center; justify-content: center; padding: 40px; }
-        #device-wrapper { position: relative; transition: 0.3s; background: transparent; border-radius: 30px; }
+        #device-wrapper { position: relative; overflow: visible; transition: 0.3s; background: #000; border-radius: 30px; }
         iframe { width: 100%; height: 100%; border: none; display: block; border-radius: 30px; }
         #code-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 100; flex-direction: column; }
-        #result-code { width: 80%; height: 50%; background: #111; color: var(--accent); padding: 20px; border-radius: 20px; }
+        #result-code { width: 80%; height: 50%; background: #111; color: var(--accent); padding: 20px; border: 1px solid var(--accent); border-radius: 20px; font-family: monospace; }
         .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input[type="color"] { height: 35px; padding: 2px; cursor: pointer; border: 1px solid #444; }
     </style>
 </head>
 <body>
@@ -32,34 +35,35 @@
             <div><label>Ширина</label><input type="number" id="width" value="800"></div>
             <div><label>Высота</label><input type="number" id="height" value="450"></div>
         </div>
-        <label>Язык</label>
-        <select id="lang-select" onchange="applyLang()">
-            <option value="ru">Русский</option>
-            <option value="de">Deutsch</option>
-            <option value="en">English</option>
-        </select>
+        <label>Фон (URL)</label>
+        <input type="text" id="bg-url" placeholder="URL картинки">
 
-        <h2>Тексты (Локализация)</h2>
-        <label>Текст ставки (то, что вас смутило)</label>
-        <input type="text" id="stake-text" value="ВЫБЕРИ СТАВКУ:">
-        <label>Заголовок игры</label>
-        <input type="text" id="start-title" value="Сокровища Пирата">
-        <label>Текст финала</label>
-        <input type="text" id="win-text" value="ЗОЛОТО ВАШЕ!">
-        <label>Кнопка рестарта</label>
-        <input type="text" id="restart-text" value="ЗАНОВО">
-
-        <h2>Стилистика</h2>
+        <h2>Цвета и Тексты</h2>
         <div class="color-grid">
+            <div><label>Цвет текстов</label><input type="color" id="text-color" value="#f9e076"></div>
             <div><label>Цвет рамки</label><input type="color" id="neon-color" value="#f9e076"></div>
-            <div><label>Цвет кнопок</label><input type="color" id="btn-color" value="#f9e076"></div>
         </div>
+        <label>Заголовок старта</label>
+        <input type="text" id="start-title" value="Сокровища Пирата">
+        <label>Кнопка старта</label>
+        <input type="text" id="start-btn-text" value="В БОЙ">
         
-        <h2>Вопросы</h2>
+        <h2>Настройки кнопок</h2>
+        <div class="color-grid">
+            <div><label>Цвет кнопок ответов</label><input type="color" id="btn-color" value="#f9e076"></div>
+            <div><label>Цвет кнопки вопроса</label><input type="color" id="q-bg-color" value="#333333"></div>
+        </div>
+        <div class="color-grid">
+            <div><label>Высота (vmin)</label><input type="number" id="btn-height" value="9"></div>
+            <div><label>Ширина (%)</label><input type="number" id="btn-width" value="100"></div>
+        </div>
+        <label>Размер текста %</label><input type="range" id="fontSize" min="2" max="8" step="0.1" value="3.5">
+
+        <h2>Уровни сложности</h2>
         <div id="levels-container"></div>
     </div>
     
-    <div style="padding: 20px;">
+    <div style="padding: 20px; border-top: 1px solid var(--border);">
         <button class="btn btn-main" onclick="updatePreview()">ОБНОВИТЬ ПРЕВЬЮ</button>
         <button class="btn btn-code" onclick="getGeniallyCode()">ПОЛУЧИТЬ КОД</button>
     </div>
@@ -70,31 +74,26 @@
 </div>
 
 <div id="code-modal">
-    <textarea id="result-code" readonly></textarea>
-    <button class="btn" onclick="document.getElementById('code-modal').style.display='none'" style="width:200px">ЗАКРЫТЬ</button>
+    <textarea id="result-code" readonly onclick="this.select()"></textarea>
+    <button class="btn" onclick="document.getElementById('code-modal').style.display='none'" style="width: 200px; background:#fff; color:#000;">ЗАКРЫТЬ</button>
 </div>
 
 <script>
 const GITHUB_RAW = "https://raw.githubusercontent.com/lindtjulia1-web/Sparschwein1/main/";
 
-const langPresents = {
-    ru: { stake: "СТАВКА:", win: "ЗОЛОТО ВАШЕ!", restart: "ЗАНОВО", title: "Сокровища Пирата" },
-    de: { stake: "EINSATZ:", win: "DEIN GOLD!", restart: "NEUSTART", title: "Piratenschatz" },
-    en: { stake: "STAKE:", win: "YOU WIN!", restart: "RESTART", title: "Pirate Luck" }
-};
-
-function applyLang() {
-    const l = langPresents[document.getElementById('lang-select').value];
-    document.getElementById('stake-text').value = l.stake;
-    document.getElementById('win-text').value = l.win;
-    document.getElementById('restart-text').value = l.restart;
-    document.getElementById('start-title').value = l.title;
-}
-
+// Инициализация уровней
 for(let i=1; i<=4; i++) {
     const lvlDiv = document.createElement('div');
     lvlDiv.className = 'card';
-    lvlDiv.innerHTML = `<h3>УРОВЕНЬ ${i}</h3><textarea id="lvl-${i}-q" placeholder="Вопросы"></textarea><textarea id="lvl-${i}-c" placeholder="Верные"></textarea><textarea id="lvl-${i}-w" placeholder="Неверные через запятую"></textarea>`;
+    lvlDiv.innerHTML = `
+        <h3>УРОВЕНЬ ${i}</h3>
+        <label>1. Вопросы</label>
+        <textarea id="lvl-${i}-q"></textarea>
+        <label style="color:var(--green)">2. Правильные ответы</label>
+        <textarea id="lvl-${i}-c"></textarea>
+        <label style="color:var(--red)">3. Неправильные (через запятую)</label>
+        <textarea id="lvl-${i}-w"></textarea>
+    `;
     document.getElementById('levels-container').appendChild(lvlDiv);
 }
 
@@ -104,59 +103,101 @@ function buildInnerGame() {
         const qLines = document.getElementById(`lvl-${i}-q`).value.split('\n').filter(l => l.trim());
         const cLines = document.getElementById(`lvl-${i}-c`).value.split('\n').filter(l => l.trim());
         const wLines = document.getElementById(`lvl-${i}-w`).value.split('\n').filter(l => l.trim());
-        levels.push(qLines.map((q, idx) => ({ q: q.trim(), a: [(cLines[idx] || "???").trim(), ...(wLines[idx] || "").split(',').map(x => x.trim()).filter(x => x)] })));
+        const questions = qLines.map((q, index) => ({
+            q: q.trim(),
+            a: [(cLines[index] || "???").trim(), ...(wLines[index] || "").split(',').map(x => x.trim()).filter(x => x)]
+        }));
+        levels.push(questions);
     }
 
     const cfg = {
+        bg: document.getElementById('bg-url').value,
         title: document.getElementById('start-title').value,
-        stakeTxt: document.getElementById('stake-text').value,
-        winTxt: document.getElementById('win-text').value,
-        revTxt: document.getElementById('restart-text').value,
-        neon: document.getElementById('neon-color').value,
+        btnTxt: document.getElementById('start-btn-text').value,
+        txtCol: document.getElementById('text-color').value,
+        qBg: document.getElementById('q-bg-color').value,
+        fz: document.getElementById('fontSize').value,
         btnCol: document.getElementById('btn-color').value,
+        btnH: document.getElementById('btn-height').value,
+        btnW: document.getElementById('btn-width').value,
+        neon: document.getElementById('neon-color').value,
         levels: levels,
         pigs: [GITHUB_RAW+"1.png", GITHUB_RAW+"2.png", GITHUB_RAW+"3.png", GITHUB_RAW+"4.png", GITHUB_RAW+"5.png", GITHUB_RAW+"6.png"],
         coin: GITHUB_RAW+"7.png",
-        sfxCoin: GITHUB_RAW+"1.mp3"
+        sfxCoin: GITHUB_RAW+"1.mp3",
+        sfxFinal: GITHUB_RAW+"2.mp3"
     };
 
     return `<!DOCTYPE html><html><head><meta charset="UTF-8">
     <style>
-        body { margin:0; height:100vh; overflow:hidden; font-family: 'Segoe UI', sans-serif; background:transparent; color:#f9e076; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}; border-radius:30px; box-sizing: border-box; transition: 0.3s; }
-        body.error-flash { border-color: #f44336; box-shadow: inset 0 0 30px #f44336; }
+        body { margin:0; height:100vh; overflow:hidden; font-family: sans-serif; background:#000; color:${cfg.txtCol}; display:flex; flex-direction:column; border-radius:30px; position: relative; box-sizing: border-box; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}, 0 0 15px ${cfg.neon}; transition: 0.3s; }
+        body.error-flash { border-color: #f44336; box-shadow: inset 0 0 30px #f44336, 0 0 30px #f44336; }
+        .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.5; z-index:-1; border-radius:24px; }
         #game { height:100%; display:flex; flex-direction:column; justify-content: space-between; padding: 5vmin 10vmin; box-sizing:border-box; }
-        .score-box { font-size:8vmin; font-weight:900; text-align:center; }
+        
+        .score-box { font-size:8vmin; color:${cfg.txtCol}; font-weight:900; text-align:center; text-shadow: 0 0 15px rgba(0,0,0,0.5); z-index:10; }
+        
         #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; }
-        .pig-wrapper { position: relative; height: 35vmin; transition: 0.2s; }
-        .pig { height: 100%; filter: drop-shadow(0 0 10px gold); }
-        .ui { display:flex; flex-direction:column; align-items: center; }
-        .q-text { width:100%; font-size:4vmin; text-align:center; margin-bottom:2vmin; font-weight:bold; background: #333; padding: 2vmin; border-radius: 15px; }
-        .btn-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 2vmin; width: 100%; }
-        button { border:none; background:${cfg.btnCol}; color:#000; height:9vmin; border-radius:15px; cursor:pointer; font-weight:bold; font-size:3vmin; }
+        .pig-wrapper { position: relative; height: 35vmin; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .pig { height: 100%; z-index:6; filter: drop-shadow(0 0 10px gold); }
+        .gold-fill { position: absolute; width: 15vmin; height: 15vmin; background: radial-gradient(circle, #f9e076 0%, transparent 70%); border-radius: 50%; z-index: 5; opacity: 0; filter: blur(10px); transition: 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+        .ui { display:flex; flex-direction:column; align-items: center; z-index:10; }
+        
+        .q-text { 
+            width:100%; font-size:${cfg.fz}vmin; text-align:center; margin-bottom:2vmin; font-weight:bold; 
+            background: ${cfg.qBg}; color: ${cfg.txtCol}; padding: 2vmin; border-radius: 15px;
+            box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .btn-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 2vmin; width: ${cfg.btnW}%; }
+        
+        button { 
+            border:none; background:${cfg.btnCol}; color:#000; height:${cfg.btnH}vmin; 
+            border-radius:15px; cursor:pointer; font-weight:bold; font-size:3.2vmin; 
+            transition: 0.1s; position: relative;
+            box-shadow: 0 0.8vmin 0 rgba(0,0,0,0.2), inset 0 -0.5vmin 0 rgba(0,0,0,0.1);
+        }
+        button:hover { filter: brightness(1.1); transform: translateY(-0.2vmin); }
+        button:active { transform: translateY(0.4vmin); box-shadow: 0 0.2vmin 0 rgba(0,0,0,0.2); }
+
+        .screen { position:absolute; inset:0; background:rgba(0,0,0,0.9); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        
+        @keyframes pig-shake { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.03) rotate(-1.5deg); } 75% { transform: scale(1.03) rotate(1.5deg); } }
+        @keyframes pig-no { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+        .pig-shake-anim { animation: pig-shake 0.25s ease-out; }
+        .pig-no-anim { animation: pig-no 0.4s ease-in-out; }
+        .falling-coin { position:absolute; top:-20vh; left:50%; width:8vmin; height:8vmin; background:url(${cfg.coin}) center/cover; z-index:100; transform: translateX(-50%); }
         @keyframes fall { 0% { top:-20vh; } 100% { top: 50%; opacity: 0; } }
-        .falling-coin { position:absolute; top:-20vh; left:50%; width:8vmin; height:8vmin; background:url(${cfg.coin}) center/cover; transform: translateX(-50%); }
-        @keyframes shake { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        @keyframes no { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-15px); } 75% { transform: translateX(15px); } }
-        .shake { animation: shake 0.2s ease; }
-        .no { animation: no 0.4s ease-in-out; }
     </style></head><body>
         <div id="game">
-            <div id="total-score" class="score-box">0</div>
-            <div id="pile-box"><div class="pig-wrapper" id="pig-wrap"><img id="pig-img" src="${cfg.pigs[0]}" class="pig"></div></div>
-            <div class="ui"><div class="q-text" id="q-label"></div><div id="btn-area" class="btn-grid"></div></div>
+            <div id="start-screen" class="screen">
+                <h1 style="font-size:8vmin; margin-bottom:4vmin;">${cfg.title}</h1>
+                <button onclick="startGame()" style="width:40vmin; height:10vmin;">${cfg.btnTxt}</button>
+            </div>
+            <div class="score-box" id="total-score">0</div>
+            <div id="pile-box">
+                <div class="pig-wrapper" id="pig-wrap">
+                    <div class="gold-fill" id="gold-core"></div>
+                    <img id="pig-img" src="${cfg.pigs[0]}" class="pig">
+                </div>
+            </div>
+            <div class="ui">
+                <div class="q-text" id="q-label"></div>
+                <div id="btn-area" class="btn-grid"></div>
+            </div>
         </div>
     <script>
         let score = 0, currentLvl = 0, currentQ = 0, stake = 0;
         const cfg = ${JSON.stringify(cfg)};
-        const coinSnd = new Audio(cfg.sfxCoin);
-
+        function startGame() { document.getElementById('start-screen').style.display='none'; nextStep(); }
         function nextStep() {
-            if(currentLvl >= cfg.levels.length) { finish(); return; }
+            if(currentLvl >= cfg.levels.length) { finishGame(); return; }
             if(currentQ >= cfg.levels[currentLvl].length) { currentLvl++; currentQ = 0; nextStep(); return; }
             showStakes();
         }
         function showStakes() {
-            document.getElementById('q-label').innerText = cfg.stakeTxt; // ТЕПЕРЬ МЕНЯЕТСЯ!
+            document.getElementById('q-label').innerText = "ВЫБЕРИ СТАВКУ:";
             const area = document.getElementById('btn-area'); area.innerHTML = '';
             [10, 50, 100, 250].forEach(val => {
                 const b = document.createElement('button'); b.innerText = val;
@@ -171,58 +212,77 @@ function buildInnerGame() {
                 const b = document.createElement('button'); b.innerText = txt;
                 b.onclick = () => {
                     if(txt === data.a[0]) { 
-                        score += stake; spawnCoins(Math.ceil(stake/10)); 
+                        score += stake; 
+                        spawnCoins(Math.ceil(stake/10)); 
+                        updateGoldCore();
                         document.getElementById('pig-img').src = cfg.pigs[Math.min(currentLvl+1, 5)]; 
                     } else { 
-                        score = Math.max(0, score - stake);
-                        const w = document.getElementById('pig-wrap');
-                        w.classList.add('no'); document.body.classList.add('error-flash');
-                        setTimeout(() => { w.classList.remove('no'); document.body.classList.remove('error-flash'); }, 400);
+                        score = Math.max(0, score - stake); 
+                        updateGoldCore();
+                        triggerWrong();
                     }
                     document.getElementById('total-score').innerText = score;
-                    currentQ++; setTimeout(nextStep, 800);
+                    currentQ++; setTimeout(nextStep, 1000);
                 }; area.appendChild(b);
             });
         }
+        function updateGoldCore() {
+            const core = document.getElementById('gold-core');
+            const intensity = Math.min(score / 1500, 1);
+            core.style.opacity = intensity;
+            core.style.transform = "scale(" + (1 + intensity * 2) + ")";
+        }
+        function triggerWrong() {
+            const w = document.getElementById('pig-wrap');
+            w.classList.add('pig-no-anim');
+            document.body.classList.add('error-flash');
+            setTimeout(() => { w.classList.remove('pig-no-anim'); document.body.classList.remove('error-flash'); }, 500);
+        }
         function spawnCoins(num) {
+            const box = document.getElementById('pile-box');
             for(let i=0; i<num; i++) {
                 setTimeout(() => {
                     const c = document.createElement('div'); c.className = 'falling-coin';
                     c.style.animation = 'fall 0.6s ease-in forwards';
-                    document.getElementById('pile-box').appendChild(c);
-                    const s = coinSnd.cloneNode(); s.volume = 0.4; s.play();
+                    box.appendChild(c);
                     const p = document.getElementById('pig-wrap');
-                    p.classList.add('shake');
-                    setTimeout(() => { c.remove(); p.classList.remove('shake'); }, 600);
-                }, i * 150);
+                    p.classList.add('pig-shake-anim');
+                    setTimeout(() => { p.classList.remove('pig-shake-anim'); c.remove(); }, 600);
+                }, i * 100);
             }
         }
-        function finish() {
-            document.getElementById('q-label').innerText = cfg.winTxt;
-            document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="grid-column: 1/3">'+cfg.revTxt+'</button>';
+        function finishGame() {
+            document.getElementById('pig-img').src = cfg.pigs[5];
+            document.getElementById('q-label').innerText = "ЗОЛОТО ВАШЕ!";
+            document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="grid-column: 1/3">RESTART</button>';
         }
-        nextStep();
     <\/script></body></html>`;
 }
 
 function updatePreview() {
-    document.getElementById('ifr').srcdoc = buildInnerGame();
     const wrapper = document.getElementById('device-wrapper');
-    wrapper.style.width = document.getElementById('width').value + 'px';
-    wrapper.style.height = document.getElementById('height').value + 'px';
+    const w = document.getElementById('width').value;
+    const h = document.getElementById('height').value;
+    wrapper.style.width = w + 'px';
+    wrapper.style.height = h + 'px';
+    const scale = Math.min((window.innerWidth - 450) / w, (window.innerHeight - 100) / h);
+    wrapper.style.transform = `scale(${scale})`;
+    document.getElementById('ifr').srcdoc = buildInnerGame();
 }
 
 function getGeniallyCode() {
     const innerHtml = buildInnerGame();
     const escapedHtml = innerHtml.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-    document.getElementById('result-code').value = `<iframe width="${document.getElementById('width').value}" height="${document.getElementById('height').value}" srcdoc="${escapedHtml}" frameborder="0" scrolling="no"></iframe>`;
+    const w = document.getElementById('width').value;
+    const h = document.getElementById('height').value;
+    document.getElementById('result-code').value = `<iframe width="${w}" height="${h}" srcdoc="${escapedHtml}" frameborder="0" scrolling="no" style="overflow:hidden; border-radius:30px;"></iframe>`;
     document.getElementById('code-modal').style.display = 'flex';
 }
 
 window.onload = () => {
-    document.getElementById('lvl-1-q').value = "Где золото?";
-    document.getElementById('lvl-1-c').value = "На острове";
-    document.getElementById('lvl-1-w').value = "В банке, В лесу";
+    document.getElementById('lvl-1-q').value = "Где золото?\nСколько 2+2?";
+    document.getElementById('lvl-1-c').value = "На острове\n4";
+    document.getElementById('lvl-1-w').value = "В банке, В лесу\n5, 3";
     updatePreview();
 }
 </script>
