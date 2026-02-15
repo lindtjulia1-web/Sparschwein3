@@ -160,7 +160,6 @@ function buildInnerGame() {
     <style>
         body { margin:0; height:100vh; overflow:hidden; font-family:${cfg.ff}; background:#000; color:#fff; display:flex; flex-direction:column; border-radius:30px; position: relative; box-sizing: border-box; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}, 0 0 15px ${cfg.neon}; }
         
-        /* Мягкое свечение всей формы вместо рамки */
         @keyframes gold-mist { 
             0% { filter: drop-shadow(0 0 10px gold) brightness(1); } 
             50% { filter: drop-shadow(0 0 25px #f9e076) brightness(1.1); } 
@@ -173,16 +172,20 @@ function buildInnerGame() {
         #pile-box { flex:1; position:relative; display:flex; justify-content:center; align-items:center; min-height: 25vmin; }
         
         .pig-wrapper { position: relative; height: 35vmin; display: flex; align-items: center; justify-content: center; animation: gold-mist 4s infinite ease-in-out; }
-        /* Свинка на переднем плане */
-        .pig { height: 100%; width:auto; z-index:6; object-fit: contain; position: relative; }
+        .pig { height: 100%; width:auto; z-index:6; object-fit: contain; position: relative; pointer-events: none; }
         
-        /* Монетки копятся ПОД свинкой */
-        .coins-container { position:absolute; width:22vmin; height:14vmin; z-index:4; overflow:hidden; pointer-events:none; top: 55%; left: 50%; transform: translate(-50%, -50%); border-radius: 40%; }
+        /* Контейнер монет СТРОГО под свинкой */
+        .coins-container { position:absolute; width:24vmin; height:16vmin; z-index:4; overflow:hidden; pointer-events:none; top: 52%; left: 50%; transform: translate(-50%, -50%); border-radius: 40%; }
         .coin-element { position:absolute; width:5vmin; height:5vmin; background:url(${cfg.coin}) center/cover no-repeat; opacity: 0.8; }
         
-        /* Анимация полета строго в центр (в прорезь) */
+        /* Полет точно в прорезь и полное исчезновение */
         .falling-coin { position:absolute; top:-20vh; left:50%; width:7vmin; height:7vmin; background:url(${cfg.coin}) center/cover no-repeat; z-index:10; filter: drop-shadow(0 0 8px gold); transform: translateX(-50%); }
         
+        @keyframes fallIn { 
+            0% { top:-20vh; left:50%; opacity:1; transform: translateX(-50%) rotate(0deg) scale(1); } 
+            100% { top: 45%; left:50%; transform: translateX(-50%) rotate(360deg) scale(0); opacity: 0; } 
+        }
+
         .ui { display:flex; flex-direction:column; justify-content:flex-end; align-items: center; z-index:10; }
         .q-text { width:100%; font-size:${cfg.fz}vmin; text-align:center; margin-bottom:1vmin; font-weight:bold; min-height:1.5em; display:flex; align-items:center; justify-content:center; }
         .btn-grid { display:grid; grid-template-columns: 1fr 1fr; gap:${cfg.btnGap}vmin; width: ${cfg.btnW}%; }
@@ -190,11 +193,6 @@ function buildInnerGame() {
         button:hover { transform: scale(1.02); filter: brightness(1.2); }
         .screen { position:absolute; inset:0; background:rgba(0,0,0,0.9); z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:5vmin; border-radius:24px; }
         #final-shower { position: absolute; inset: 0; pointer-events: none; z-index: 20; display: none; }
-        
-        @keyframes fallIn { 
-            0% { top:-20vh; opacity:1; transform: translateX(-50%) rotate(0deg) scale(1); } 
-            100% { top: 50%; transform: translateX(-50%) rotate(360deg) scale(0.2); opacity: 0; } 
-        }
         @keyframes endRain { 0% { top:-10vh; opacity:1; } 100% { top:110vh; opacity:0.3; } }
     </style></head><body>
         <div id="final-shower"></div><div class="bg"></div>
