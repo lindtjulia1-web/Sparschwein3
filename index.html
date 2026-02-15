@@ -158,19 +158,28 @@ function buildInnerGame() {
 
     return `<!DOCTYPE html><html><head><meta charset="UTF-8">
     <style>
-        body { margin:0; height:100vh; overflow:hidden; font-family:${cfg.ff}; background:#000; color:#fff; display:flex; flex-direction:column; border-radius:30px; position: relative; box-sizing: border-box; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}, 0 0 15px ${cfg.neon}; }
+        body { margin:0; height:100vh; overflow:hidden; font-family:${cfg.ff}; background:#000; color:#fff; display:flex; flex-direction:column; border-radius:30px; position: relative; box-sizing: border-box; border: 6px solid ${cfg.neon}; box-shadow: inset 0 0 15px ${cfg.neon}, 0 0 15px ${cfg.neon}; transition: border-color 0.3s, box-shadow 0.3s; }
         
+        /* Эффект ошибки на всем экране */
+        body.error-flash { border-color: #f44336; box-shadow: inset 0 0 30px #f44336, 0 0 30px #f44336; }
+
         @keyframes gold-mist { 
             0% { filter: drop-shadow(0 0 10px gold) brightness(1); } 
             50% { filter: drop-shadow(0 0 25px #f9e076) brightness(1.1); } 
             100% { filter: drop-shadow(0 0 10px gold) brightness(1); } 
         }
 
-        /* Ослабленная тряска для долговечности свинки */
         @keyframes pig-shake {
             0%, 100% { transform: scale(1); }
             25% { transform: scale(1.03) rotate(-1.5deg); }
             75% { transform: scale(1.03) rotate(1.5deg); }
+        }
+
+        /* Анимация отрицания при ошибке */
+        @keyframes pig-no {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
         }
 
         .bg { position:fixed; inset:0; background:url(${cfg.bg}) center/cover; opacity:0.5; z-index:-1; border-radius:24px; }
@@ -181,6 +190,7 @@ function buildInnerGame() {
         
         .pig-wrapper { position: relative; height: 35vmin; display: flex; align-items: center; justify-content: center; animation: gold-mist 4s infinite ease-in-out; transition: 0.2s; }
         .pig-shake-anim { animation: pig-shake 0.25s ease-out !important; }
+        .pig-no-anim { animation: pig-no 0.4s ease-in-out !important; }
         
         .pig { height: 100%; width:auto; z-index:6; object-fit: contain; position: relative; pointer-events: none; }
         
@@ -261,7 +271,11 @@ function buildInnerGame() {
                         updateGoldCore();
                         if(currentLvl < 5) document.getElementById('pig-img').src = cfg.pigs[currentLvl+1]; 
                     }
-                    else { score = Math.max(0, score - stake); updateGoldCore(); }
+                    else { 
+                        score = Math.max(0, score - stake); 
+                        updateGoldCore();
+                        triggerWrongEffect(); // Запуск эффекта ошибки
+                    }
                     document.getElementById('total-score').innerText = score;
                     currentQ++; setTimeout(nextStep, 1500);
                 }; area.appendChild(b);
@@ -273,6 +287,20 @@ function buildInnerGame() {
             w.classList.remove('pig-shake-anim');
             void w.offsetWidth;
             w.classList.add('pig-shake-anim');
+        }
+
+        function triggerWrongEffect() {
+            const w = document.getElementById('pig-wrap');
+            const body = document.body;
+            
+            // Свинка мотает головой
+            w.classList.remove('pig-no-anim');
+            void w.offsetWidth;
+            w.classList.add('pig-no-anim');
+
+            // Рамка мигает красным
+            body.classList.add('error-flash');
+            setTimeout(() => body.classList.remove('error-flash'), 500);
         }
 
         function updateGoldCore() {
@@ -292,7 +320,6 @@ function buildInnerGame() {
                     container.appendChild(c); 
                     snd.coin(); 
                     
-                    // Синхронная мягкая тряска при касании
                     setTimeout(() => {
                         triggerPigShake();
                     }, 600);
