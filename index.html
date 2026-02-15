@@ -262,6 +262,7 @@ function buildInnerGame() {
         function finish() {
             document.getElementById('q-label').innerText = cfg.winTxt;
             document.getElementById('btn-area').innerHTML = '<button onclick="location.reload()" style="grid-column: 1/3">'+cfg.finalTxt+'</button>';
+            spawnCoins(15); // Финальный денежный дождь
         }
     <\/script></body></html>`;
 }
