@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>KGB Piggy Bank Pro Editor - FIXED</title>
+    <title>KGB Piggy Bank Pro Editor - Column Mode</title>
     <style>
         :root { --accent: #f9e076; --bg: #1e1e24; --panel: #2a2a32; --border: #3d3d45; --green: #4caf50; --red: #f44336; }
         body { font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -10,16 +10,15 @@
         .sidebar { width: 400px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
         .sidebar-content { flex: 1; overflow-y: auto; padding: 20px; }
         h2 { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin: 20px 0 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
-        h3 { font-size: 12px; color: #fff; margin: 15px 0 5px; opacity: 0.8; }
+        h3 { font-size: 13px; color: var(--accent); margin: 20px 0 10px; display: flex; align-items: center; justify-content: space-between; }
         
-        .card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 12px; border-radius: 15px; margin-bottom: 10px; position: relative; }
-        .del-btn { position: absolute; top: 8px; right: 10px; color: var(--red); cursor: pointer; font-size: 10px; font-weight: bold; }
+        .card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 12px; border-radius: 15px; margin-bottom: 20px; }
         
         label { display: block; font-size: 10px; color: #aaa; text-transform: uppercase; margin-top: 8px; }
-        input, select, textarea { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; outline: none; font-size: 13px; }
+        input, select, textarea { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 8px; margin-top: 4px; box-sizing: border-box; outline: none; font-size: 13px; line-height: 1.4; }
+        textarea { resize: vertical; min-height: 80px; font-family: monospace; }
         
         .btn { border: none; padding: 14px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
-        .btn-add { background: #444; color: #fff; font-size: 11px; padding: 8px; }
         .btn-main { background: #ffb347; color: #000; } 
         .btn-code { background: #77dd77; color: #000; } 
         .btn-import { background: #55acee; color: #fff; font-size: 11px; padding: 8px; margin-top: 5px; }
@@ -93,13 +92,6 @@
             <div><label>Лево/Право</label><input type="number" id="padH" value="10"></div>
         </div>
 
-        <h2>Импорт вопросов</h2>
-        <div class="card">
-            <label>Формат: Вопрос;Верный;Ложный,Ложный</label>
-            <textarea id="import-text" rows="3" placeholder="Загадка;Ответ;Неверно1,Неверно2"></textarea>
-            <button class="btn btn-import" onclick="processImport()">ИМПОРТИРОВАТЬ</button>
-        </div>
-
         <h2>Уровни сложности</h2>
         <div id="levels-container"></div>
     </div>
@@ -122,54 +114,39 @@
 <script>
 const GITHUB_RAW = "https://raw.githubusercontent.com/lindtjulia1-web/Sparschwein1/main/";
 
-// Инициализация уровней
+// Инициализация 4 уровней с тремя колонками ввода
 for(let i=1; i<=4; i++) {
     const lvlDiv = document.createElement('div');
-    lvlDiv.innerHTML = `<h3>Уровень ${i}</h3>
-                        <div id="q-container-lvl-${i}"></div>
-                        <button class="btn btn-add" onclick="addQ(${i})">+ Добавить вопрос (Lvl ${i})</button>`;
+    lvlDiv.className = 'card';
+    lvlDiv.innerHTML = `
+        <h3>УРОВЕНЬ ${i}</h3>
+        <label>1. Вопросы (по одному в строке)</label>
+        <textarea id="lvl-${i}-q" placeholder="Вопрос 1\nВопрос 2..."></textarea>
+        
+        <label style="color:var(--green)">2. Правильные ответы (соотв. строке)</label>
+        <textarea id="lvl-${i}-c" placeholder="Ответ 1\nОтвет 2..."></textarea>
+        
+        <label style="color:var(--red)">3. Неправильные (через запятую)</label>
+        <textarea id="lvl-${i}-w" placeholder="Ложь1, Ложь2\nЛожь1, Ложь2..."></textarea>
+    `;
     document.getElementById('levels-container').appendChild(lvlDiv);
-}
-
-function addQ(lvl, q="", c="", w="") {
-    const container = document.getElementById(`q-container-lvl-${lvl}`);
-    if(!container || container.children.length >= 5) return;
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `<span class="del-btn" onclick="this.parentElement.remove()">УДАЛИТЬ</span>
-        <label>Вопрос</label><input type="text" class="inp-q" value="${q}">
-        <label style="color:var(--green)">Верный</label><input type="text" class="inp-correct" value="${c}">
-        <label style="color:var(--red)">Ложные (через запятую)</label><input type="text" class="inp-wrong" value="${w}">`;
-    container.appendChild(div);
-}
-
-function processImport() {
-    const raw = document.getElementById('import-text').value.trim();
-    if(!raw) return;
-    const lines = raw.split('\n');
-    let currentLvl = 1;
-    let countInLvl = 0;
-
-    lines.forEach(line => {
-        const [q, c, w] = line.split(';');
-        if(q && c && w && currentLvl <= 4) {
-            addQ(currentLvl, q.trim(), c.trim(), w.trim());
-            countInLvl++;
-            if(countInLvl >= 5) { countInLvl = 0; currentLvl++; }
-        }
-    });
-    document.getElementById('import-text').value = "";
-    updatePreview();
 }
 
 function buildInnerGame() {
     const levels = [];
     for(let i=1; i<=4; i++) {
-        const cards = Array.from(document.querySelectorAll(`#q-container-lvl-${i} .card`));
-        const questions = cards.map(c => ({
-            q: c.querySelector('.inp-q').value,
-            a: [c.querySelector('.inp-correct').value, ...c.querySelector('.inp-wrong').value.split(',').map(x => x.trim())]
-        })).filter(x => x.q);
+        const qLines = document.getElementById(`lvl-${i}-q`).value.split('\n').filter(l => l.trim());
+        const cLines = document.getElementById(`lvl-${i}-c`).value.split('\n').filter(l => l.trim());
+        const wLines = document.getElementById(`lvl-${i}-w`).value.split('\n').filter(l => l.trim());
+
+        const questions = qLines.map((q, index) => {
+            const correct = cLines[index] || "???";
+            const wrongs = (wLines[index] || "").split(',').map(x => x.trim()).filter(x => x);
+            return {
+                q: q.trim(),
+                a: [correct.trim(), ...wrongs]
+            };
+        });
         levels.push(questions);
     }
 
@@ -294,7 +271,10 @@ function getGeniallyCode() {
 }
 
 window.onload = () => {
-    addQ(1, "Где золото?", "На острове", "В банке, В лесу");
+    // Демонстрационные данные
+    document.getElementById('lvl-1-q').value = "Где золото?\nСколько 2+2?";
+    document.getElementById('lvl-1-c').value = "На острове\n4";
+    document.getElementById('lvl-1-w').value = "В банке, В лесу\n5, 3";
     updatePreview();
 }
 </script>
